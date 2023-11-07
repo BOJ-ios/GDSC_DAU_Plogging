@@ -97,4 +97,17 @@ class AuthService extends ChangeNotifier {
     await FirebaseAuth.instance.signOut();
     notifyListeners(); // 로그아웃 시, 상태 변경
   }
+
+  Future<void> resetPassword({
+    required String email,
+    required VoidCallback onSuccess,
+    required Function(String) onError,
+  }) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      onSuccess();
+    } catch (error) {
+      onError(error.toString());
+    }
+  }
 }

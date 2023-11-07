@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(labelText: '아이디'),
+                  decoration: const InputDecoration(labelText: '이메일'),
                 ),
                 TextField(
                   obscureText: true,
@@ -90,6 +90,39 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: const Text('회원가입'),
+                  ),
+                ),
+                // 1. 비밀번호 찾기 UI 추가
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // 3. 버튼 이벤트 처리: authService의 비밀번호 찾기 기능 호출
+                      if (emailController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("이메일을 입력해주세요.")),
+                        );
+                      } else {
+                        authService.resetPassword(
+                          email: emailController.text,
+                          onSuccess: () {
+                            // 4. 사용자 피드백 제공: 성공 알림
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("비밀번호 재설정 이메일을 보냈습니다.")),
+                            );
+                          },
+                          onError: (error) {
+                            // 4. 사용자 피드백 제공: 에러 알림
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error : $error")),
+                            );
+                          },
+                        );
+                      }
+                    },
+                    child: const Text('비밀번호 찾기'),
                   ),
                 ),
               ],
