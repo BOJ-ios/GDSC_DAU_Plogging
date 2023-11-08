@@ -43,6 +43,8 @@ dependencies:
   geolocator: ^10.1.0
   permission_handler: ^11.0.1
   pedometer: ^4.0.1
+  firebase_storage: ^11.0.15
+  image_picker: ^0.8.4+4
 
 dev_dependencies:
   flutter_test:

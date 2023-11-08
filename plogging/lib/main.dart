@@ -8,30 +8,40 @@ import 'package:plogging/homepage.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 
-Future<void> main() async {
+import 'camerapage.dart';
+
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+//   runApp(
+//     MultiProvider(
+//       providers: [
+//         ChangeNotifierProvider(create: (context) => AuthService()),
+//       ],
+//       child: const MyApp(),
+//     ),
+//   );
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     // 로그인 여부 체크 후, LoginPage 또는 Homepage를 띄운다.
+//     User? user = context.read<AuthService>().currentUser();
+//
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: user == null ? const LoginPage() : const HomePage(),
+//     );
+//   }
+// }
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => AuthService()),
-      ],
-      child: const MyApp(),
-    ),
-  );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // 로그인 여부 체크 후, LoginPage 또는 Homepage를 띄운다.
-    User? user = context.read<AuthService>().currentUser();
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: user == null ? const LoginPage() : const HomePage(),
-    );
-  }
+  runApp(MaterialApp(
+    home: CameraExample(),
+  ));
 }
