@@ -14,6 +14,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  String? _selectedSchoolName;
+  @override
+  void initState() {
+    super.initState();
+    _selectedSchoolName = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,18 +83,26 @@ class _LoginPageState extends State<LoginPage> {
                   margin: const EdgeInsets.only(top: 16),
                   child: ElevatedButton(
                     onPressed: () {
-                      authService.signUp(
-                        email: emailController.text,
-                        password: passwordController.text,
-                        onSuccess: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("회원가입 성공")));
-                        },
-                        onError: (error) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text(error)));
-                        },
-                      );
+                      if (_selectedSchoolName == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("학교를 선택하세요")),
+                        );
+                      } else {
+                        authService.signUp(
+                          email: emailController.text,
+                          password: passwordController.text,
+                          schoolName: _selectedSchoolName!,
+                          name: nameController.text,
+                          onSuccess: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("회원가입 성공")));
+                          },
+                          onError: (error) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text(error)));
+                          },
+                        );
+                      }
                     },
                     child: const Text('회원가입'),
                   ),
@@ -124,6 +139,24 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text('비밀번호 찾기'),
                   ),
+                ),
+                DropdownButton<String?>(
+                  value: _selectedSchoolName,
+                  items: [null, '동아대학교', '기타대학교'].map((String? i) {
+                    return DropdownMenuItem<String?>(
+                      value: i,
+                      child: Text(i == null ? '미선택' : i.toString()),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedSchoolName = newValue;
+                    });
+                  },
+                ),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: '이름'),
                 ),
               ],
             ),

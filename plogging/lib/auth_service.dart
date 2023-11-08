@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plogging/database_service.dart';
 
 // 로그인 상태가 변할 시, 화면 초기화를 위해 ChangeNotifier
 class AuthService extends ChangeNotifier {
@@ -14,6 +16,8 @@ class AuthService extends ChangeNotifier {
     required String password, // 비밀번호
     required Function() onSuccess, // 가입 성공시 호출되는 함수
     required Function(String err) onError, // 에러 발생시 호출되는 함수
+    required String? schoolName, // 비밀번호
+    required String name, // 이름
   }) async {
     // 회원가입 유효성 검사, 이메일 및 비밀번호 입력 여부 확인
     if (email.isEmpty) {
@@ -22,17 +26,23 @@ class AuthService extends ChangeNotifier {
     } else if (password.isEmpty) {
       onError("비밀번호를 입력해 주세요");
       return;
+    } else if (schoolName == null) {
+      onError("학교를 선택해주세요");
+      return;
+    } else if (name.isEmpty) {
+      onError("이름 입력해 주세요");
+      return;
     }
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       User? user = userCredential.user;
-      if (user != null) {
-        await user.sendEmailVerification();
-        signOut();
-        onSuccess(); // 성공 콜백 호출
-      }
+      await DatabaseService(uid: user!.uid)
+          .updateUserData(email, schoolName, name);
+      await user.sendEmailVerification();
+      signOut();
+      onSuccess(); // 성공 콜백 호출
     } on FirebaseAuthException catch (e) {
       // Firebase auth 에러; email 형식을 지키지 않았거나, 등
       // onError(e.message!);
@@ -109,5 +119,12 @@ class AuthService extends ChangeNotifier {
     } catch (error) {
       onError(error.toString());
     }
+  }
+
+  void deleteAccount() {
+    User? user = FirebaseAuth.instance.currentUser;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    users.doc(user?.uid).delete();
+    user?.delete();
   }
 }
