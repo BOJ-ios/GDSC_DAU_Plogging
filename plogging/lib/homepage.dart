@@ -4,6 +4,7 @@ import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 import 'package:plogging/mappage.dart';
 import 'package:plogging/pedometer.dart';
+import 'package:plogging/upload_state.dart';
 
 import 'auth_service.dart';
 
@@ -54,6 +55,19 @@ class HomePage extends StatelessWidget {
                 ));
               },
               child: const Text('만보계 보기'),
+            ),
+            const SizedBox(height: 20),
+            Consumer<UploadState>( // Consumer 위젯을 사용하여 UploadState의 상태를 가져옵니다.
+              builder: (context, uploadState, child) {
+                return ElevatedButton(
+                  onPressed: () {
+                    // UploadState의 현재 상태를 가져와서 반대로 설정
+                    bool currentStatus = uploadState.isUploaded;
+                    uploadState.setUploadStatus(!currentStatus);
+                  },
+                  child: Text('상태 변경 (현재: ${uploadState.isUploaded ? "true" : "false"})'), // 버튼의 텍스트를 동적으로 변경합니다.
+                );
+              },
             ),
           ],
         ),
