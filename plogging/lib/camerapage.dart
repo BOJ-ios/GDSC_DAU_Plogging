@@ -38,8 +38,8 @@ class _CameraExampleState extends State<CameraExample> {
       uploadTask.whenComplete(() async {
         print('이미지 업로드 성공');
 
-        // Reference _ref = FirebaseStorage.instance.ref().child('image/6253ce90-7820-4df5-bbe5-9e6c5be8303b7405484025110057869');
-        // String _url = await _ref.getDownloadURL();
+        final urlDownload = await uploadTask.snapshot.ref.getDownloadURL();
+        print('url : ${urlDownload.toString()}');
 
       }).catchError((error) {
         print('이미지 업로드 실패: $error');

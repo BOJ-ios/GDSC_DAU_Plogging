@@ -22,7 +22,7 @@ import 'camerapage.dart';
 //     ),
 //   );
 // }
-//
+
 // class MyApp extends StatelessWidget {
 //   const MyApp({Key? key}) : super(key: key);
 //
@@ -38,6 +38,7 @@ import 'camerapage.dart';
 //   }
 // }
 
+// 사진 촬영
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
