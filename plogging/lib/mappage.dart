@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:plogging/upload_state.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -13,6 +15,7 @@ class _MapPageState extends State<MapPage> {
   late GoogleMapController mapController;
   Position? currentPosition;
   bool isLocationPermissionGranted = false;
+  Set<Marker> markers = {}; // 마커를 저장할 Set
 
   @override
   void initState() {
@@ -66,6 +69,8 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final markerState = Provider.of<MarkerState>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Google Maps'),
@@ -73,7 +78,6 @@ class _MapPageState extends State<MapPage> {
           IconButton(
             icon: const Icon(Icons.location_on),
             onPressed: () {
-              // 버튼을 누르면 현재 위치로 이동하는 코드를 추가하세요.
               if (currentPosition != null) {
                 mapController.animateCamera(CameraUpdate.newCameraPosition(
                   CameraPosition(
@@ -87,17 +91,36 @@ class _MapPageState extends State<MapPage> {
           ),
         ],
       ),
-      body: GoogleMap(
-        onMapCreated: (GoogleMapController controller) {
-          mapController = controller;
+      body: Consumer<UploadState>(
+        builder: (context, uploadState, child) {
+          if (uploadState.isUploaded && currentPosition != null) {
+            final marker = Marker(
+              markerId: MarkerId('uploadedLocation'),
+              position: LatLng(currentPosition!.latitude, currentPosition!.longitude),
+            );
+
+            markerState.addMarker(marker);
+          }
+
+          return GoogleMap(
+            onMapCreated: (GoogleMapController controller) {
+              mapController = controller;
+            },
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(0, 0),
+              zoom: 10,
+            ),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            markers: markerState.markers.toSet(),
+          );
         },
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(0, 0),
-          zoom: 10,
-        ),
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 }
