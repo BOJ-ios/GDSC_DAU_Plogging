@@ -7,6 +7,8 @@ import 'package:plogging/firebase_options.dart';
 import 'package:plogging/homepage.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
+import 'package:plogging/upload_state.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +17,8 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => UploadState()),
+        ChangeNotifierProvider(create: (context) => MarkerState()),
       ],
       child: const MyApp(),
     ),
