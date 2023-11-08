@@ -5,10 +5,7 @@ import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 import 'package:plogging/mappage.dart';
 import 'package:plogging/pedometer.dart';
-import 'package:plogging/upload_state.dart';
-
 import 'auth_service.dart';
-import 'package:plogging/camera.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -69,20 +66,9 @@ class HomePage extends StatelessWidget {
                       const CameraExample(), // CameraPage 클래스를 생성해야 함
                 ));
               },
-              child: const Text('사진선택 업로드'),
+              child: const Text('사진찰영, 선택 => 업로드'),
             ),
-            const SizedBox(height: 20), // 공간을 띄워줍니다.
-            // 카메라 페이지로 가는 버튼 추가
-            ElevatedButton(
-              onPressed: () {
-                // CameraPage로 이동
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      const CameraPage(), // CameraPage 클래스를 생성해야 함
-                ));
-              },
-              child: const Text('카메라 촬영'),
-            ),
+
             const SizedBox(height: 50), // 공간을 띄워줍니다.
             ElevatedButton(
               onPressed: () {
@@ -95,21 +81,6 @@ class HomePage extends StatelessWidget {
                 );
               },
               child: const Text('바로 탈퇴'),
-            ),
-            const SizedBox(height: 20),
-            Consumer<UploadState>(
-              // Consumer 위젯을 사용하여 UploadState의 상태를 가져옵니다.
-              builder: (context, uploadState, child) {
-                return ElevatedButton(
-                  onPressed: () {
-                    // UploadState의 현재 상태를 가져와서 반대로 설정
-                    bool currentStatus = uploadState.isUploaded;
-                    uploadState.setUploadStatus(!currentStatus);
-                  },
-                  child: Text(
-                      '상태 변경 (현재: ${uploadState.isUploaded ? "true" : "false"})'), // 버튼의 텍스트를 동적으로 변경합니다.
-                );
-              },
             ),
           ],
         ),

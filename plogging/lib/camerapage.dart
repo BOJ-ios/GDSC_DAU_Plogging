@@ -1,9 +1,17 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
+import 'package:location/location.dart';
+
+Location location = Location();
+var logger = Logger();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class CameraExample extends StatefulWidget {
   const CameraExample({Key? key}) : super(key: key);
@@ -13,39 +21,107 @@ class CameraExample extends StatefulWidget {
 }
 
 class _CameraExampleState extends State<CameraExample> {
-  XFile? _image;
-  final ImagePicker picker = ImagePicker();
+  //! 위치 서비스와 권한 요청:
+  Future<void> requestPermission() async {
+    Location location = Location();
 
-  // 이미지를 가져오는 함수
-  Future getImage(ImageSource imageSource) async {
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
-    if (pickedFile != null) {
-      setState(() {
-        _image = pickedFile;
-      });
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
     }
   }
 
-  // 이미지를 Firebase Storage에 업로드하는 함수
+  XFile? _image;
+  final ImagePicker picker = ImagePicker();
+
+  // !이미지를 가져오는 함수
+  Future getImage(ImageSource imageSource) async {
+    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final fileSize = await file.length();
+      // 5MB 이하인지 확인
+      if (fileSize <= 5 * 1024 * 1024) {
+        setState(() {
+          _image = pickedFile;
+        });
+      } else {
+        // 사용자에게 파일이 너무 크다고 알립니다.
+        showErrorSnackbar('파일이 너무 큽니다. 5MB 이하의 파일을 선택해 주세요.');
+      }
+    }
+  }
+
+  // !이미지를 Firebase Storage에 업로드하는 함수
   Future<void> uploadImage() async {
+    // 권한 요청
+    await requestPermission();
     if (_image != null) {
       String fileName = path.basename(_image!.path);
-      Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child("image/$fileName"); // "test" 폴더에 이미지 업로드
-
-      UploadTask uploadTask = storageReference.putFile(File(_image!.path));
-
-      uploadTask.whenComplete(() async {
-        print('이미지 업로드 성공');
-
-        final urlDownload = await uploadTask.snapshot.ref.getDownloadURL();
-        print('url : ${urlDownload.toString()}');
-      }).catchError((error) {
-        print('이미지 업로드 실패: $error');
-      });
+      // 파일 확장자 추출
+      String fileExtension = fileName.split('.').last.toLowerCase();
+      // 지원되는 확장자 목록
+      List<String> supportedExtensions = ['jpg', 'jpeg', 'png'];
+      // 파일 확장자 확인
+      if (supportedExtensions.contains(fileExtension)) {
+        Reference storageReference =
+            FirebaseStorage.instance.ref().child("image/$fileName");
+        try {
+          UploadTask uploadTask = storageReference.putFile(File(_image!.path));
+          TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => {});
+          final urlDownload = await taskSnapshot.ref.getDownloadURL();
+          logger.d('이미지 업로드 성공');
+          logger.d('url : $urlDownload');
+          showSuccessSnackbar();
+          // !Firestore에 URL과 타임스탬프 저장
+          // Todo : 위치 데이터 추가? => 완료
+          // 현재 위치 가져오기
+          LocationData locationData = await location.getLocation();
+          await FirebaseFirestore.instance.collection('pictures').add({
+            'url': urlDownload,
+            'timestamp': FieldValue.serverTimestamp(),
+            'latitude': locationData.latitude,
+            'longitude': locationData.longitude,
+          });
+          // 현재 로그인한 사용자의 UID를 얻습니다.
+          final String userId = FirebaseAuth.instance.currentUser!.uid;
+          // Firestore에 사용자의 마커 위치 데이터를 추가합니다.
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('markers')
+              .add({
+            'url': urlDownload, // 이미지의 다운로드 URL
+            'timestamp': FieldValue.serverTimestamp(), // 서버의 타임스탬프
+            'latitude': locationData.latitude, // 위도
+            'longitude': locationData.longitude, // 경도
+          });
+        } catch (e) {
+          logger.e('이미지 업로드 실패: $e');
+          showErrorSnackbar('이미지 업로드에 실패했습니다. 에러: $e');
+        }
+      } else {
+        // 지원되지 않는 파일 형식입니다. 사용자에게 알립니다.
+        logger.e('지원되지 않는 파일 형식입니다.');
+        showErrorSnackbar('지원되지 않는 파일 형식입니다. JPG, JPEG, PNG 파일만 업로드할 수 있습니다.');
+      }
     } else {
-      print('이미지가 선택되지 않았습니다.');
+      logger.e('이미지가 선택되지 않았습니다.');
+      showSelectionErrorSnackbar();
     }
   }
 
@@ -87,6 +163,7 @@ class _CameraExampleState extends State<CameraExample> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       home: Scaffold(
         appBar: AppBar(title: const Text("Camera Test")),
         body: Column(
@@ -104,5 +181,45 @@ class _CameraExampleState extends State<CameraExample> {
         ),
       ),
     );
+  }
+
+  //! 스낵바
+  void showSuccessSnackbar() {
+    if (mounted) {
+      scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(
+          content: Text('이미지가 성공적으로 업로드되었습니다!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void showErrorSnackbar(String message) {
+    if (mounted) {
+      scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void showSelectionErrorSnackbar() {
+    if (mounted) {
+      scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(
+          content: Text('이미지를 선택해주세요.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }

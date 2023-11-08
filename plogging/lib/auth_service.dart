@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:plogging/database_service.dart';
 
 // 로그인 상태가 변할 시, 화면 초기화를 위해 ChangeNotifier
 class AuthService extends ChangeNotifier {
@@ -38,8 +37,11 @@ class AuthService extends ChangeNotifier {
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       User? user = userCredential.user;
-      await DatabaseService(uid: user!.uid)
-          .updateUserData(email, schoolName, name);
+      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
+        'email': email,
+        'schoolName': schoolName,
+        'name': name,
+      });
       await user.sendEmailVerification();
       signOut();
       onSuccess(); // 성공 콜백 호출

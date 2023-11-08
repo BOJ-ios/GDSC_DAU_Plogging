@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,18 +6,20 @@ import 'package:plogging/firebase_options.dart';
 import 'package:plogging/homepage.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
-import 'package:plogging/upload_state.dart';
 // Import the firebase_app_check plugin
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:logger/logger.dart';
+
+var logger = Logger();
 
 Future<void> printAppCheckToken() async {
   try {
     // Get the App Check token
     String? token = await FirebaseAppCheck.instance.getToken(true);
     // Print the token
-    print('App Check token: $token');
+    logger.d('App Check token: $token');
   } catch (e) {
-    print('Error getting App Check token: $e');
+    logger.e('Error getting App Check token: $e');
   }
 }
 
@@ -36,8 +37,6 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
-        ChangeNotifierProvider(create: (context) => UploadState()),
-        ChangeNotifierProvider(create: (context) => MarkerState()),
       ],
       child: const MyApp(),
     ),
@@ -51,7 +50,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // 로그인 여부 체크 후, LoginPage 또는 Homepage를 띄운다.
     User? user = context.read<AuthService>().currentUser();
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: user == null ? const LoginPage() : const HomePage(),
