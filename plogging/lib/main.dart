@@ -8,11 +8,30 @@ import 'package:plogging/homepage.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 import 'package:plogging/upload_state.dart';
+// Import the firebase_app_check plugin
+import 'package:firebase_app_check/firebase_app_check.dart';
 
+Future<void> printAppCheckToken() async {
+  try {
+    // Get the App Check token
+    String? token = await FirebaseAppCheck.instance.getToken(true);
+    // Print the token
+    print('App Check token: $token');
+  } catch (e) {
+    print('Error getting App Check token: $e');
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate(
+    webProvider:
+        ReCaptchaV3Provider('6LcEuwcpAAAAAEfrXMnjRurEG2lzx4lxOZmk75um'),
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.appAttest,
+  );
+  await printAppCheckToken();
   runApp(
     MultiProvider(
       providers: [
