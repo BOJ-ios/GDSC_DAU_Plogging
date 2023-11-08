@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 import 'package:plogging/mappage.dart';
+import 'package:plogging/pedometer.dart';
 
 import 'auth_service.dart';
 
@@ -30,20 +31,29 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Center(
-        // child: Text(user != null ? '환영합니다, ${user.email}' : '로그인 상태가 아닙니다.'),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(user != null ? '환영합니다, ${user.email}' : '로그인 상태가 아닙니다.'),
-            SizedBox(height: 20), // 공간을 띄워줍니다.
+            const SizedBox(height: 20), // 공간을 띄워줍니다.
             ElevatedButton(
               onPressed: () {
                 // mapPage로 이동
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => MapPage(), // MapPage로 이동하도록 수정
+                  builder: (context) => const MapPage(), // MapPage로 이동하도록 수정
                 ));
               },
-              child: Text('지도 보기'),
+              child: const Text('지도 보기'),
+            ),
+            const SizedBox(height: 20), // 공간을 띄워줍니다.
+            ElevatedButton(
+              onPressed: () {
+                // PedometerPage로 이동
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const PedometerPage(),
+                ));
+              },
+              child: const Text('만보계 보기'),
             ),
           ],
         ),
