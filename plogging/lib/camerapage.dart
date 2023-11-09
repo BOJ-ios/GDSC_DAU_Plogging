@@ -1,12 +1,18 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_vision/flutter_vision.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logger/logger.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:ui' as ui;
 
 Location location = Location();
 var logger = Logger();
@@ -47,7 +53,8 @@ class _CameraExampleState extends State<CameraExample> {
 
   XFile? _image;
   final ImagePicker picker = ImagePicker();
-
+  final FlutterVision vision = FlutterVision();
+  Uint8List? detectedImage;
   // !이미지를 가져오는 함수
   Future getImage(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
@@ -110,6 +117,8 @@ class _CameraExampleState extends State<CameraExample> {
             'latitude': locationData.latitude, // 위도
             'longitude': locationData.longitude, // 경도
           });
+          // Analyze the image using flutter_vision
+          analyzeImage(urlDownload);
         } catch (e) {
           logger.e('이미지 업로드 실패: $e');
           showErrorSnackbar('이미지 업로드에 실패했습니다. 에러: $e');
@@ -122,6 +131,43 @@ class _CameraExampleState extends State<CameraExample> {
     } else {
       logger.e('이미지가 선택되지 않았습니다.');
       showSelectionErrorSnackbar();
+    }
+  }
+
+  Future<void> analyzeImage(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        Uint8List imageBytes = response.bodyBytes;
+
+        // Use image package to decode the image and find out the dimensions
+        final image = img.decodeImage(imageBytes); // The image package function
+        if (image == null) throw 'Unable to decode image';
+
+        // Load the YOLO model before running inference.
+        await vision.loadYoloModel(
+            modelPath: 'assets/yolov8m_float16.tflite',
+            labels: 'assets/coco_label.txt',
+            modelVersion: 'yolov8',
+            quantization: false,
+            numThreads: 2,
+            useGpu: true);
+
+        // Run inference using the YOLO model with actual image dimensions
+        List<Map<String, dynamic>> results = await vision.yoloOnImage(
+          bytesList: imageBytes,
+          imageHeight: image.height,
+          imageWidth: image.width,
+          // Provide other parameters as needed
+        );
+        logger.d(results);
+        setState(() {});
+        //감지된 사진을 화면에 표시
+      } else {
+        logger.e('Failed to fetch image for analysis.');
+      }
+    } catch (e) {
+      logger.e('An error occurred while analyzing the image: $e');
     }
   }
 
@@ -181,6 +227,14 @@ class _CameraExampleState extends State<CameraExample> {
         ),
       ),
     );
+  }
+
+  Future<ui.Image> loadImage(Uint8List imgBytes) async {
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(imgBytes, (ui.Image img) {
+      return completer.complete(img);
+    });
+    return completer.future;
   }
 
   //! 스낵바
