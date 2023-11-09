@@ -1,3 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:plogging/theme/theme_helper.dart';
+import 'package:plogging/routes/app_routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +38,13 @@ Future<void> main() async {
     appleProvider: AppleProvider.appAttest,
   );
   await printAppCheckToken();
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  ///Please update theme as per your need if required.
+  ThemeHelper().changeTheme('primary');
   runApp(
     MultiProvider(
       providers: [
@@ -51,8 +63,12 @@ class MyApp extends StatelessWidget {
     // 로그인 여부 체크 후, LoginPage 또는 Homepage를 띄운다.
     User? user = context.read<AuthService>().currentUser();
     return MaterialApp(
+      theme: theme,
+      title: 'plogging',
       debugShowCheckedModeBanner: false,
-      home: user == null ? const LoginPage() : const HomePage(),
+      initialRoute:
+          user == null ? AppRoutes.getStartedScreen : AppRoutes.mainScreen,
+      routes: AppRoutes.routes,
     );
   }
 }
