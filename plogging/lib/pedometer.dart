@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
 
@@ -13,15 +15,44 @@ class _PedometerPageState extends State<PedometerPage> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '?';
+  int _dailySteps = 0;
+
   @override
   void initState() {
     super.initState();
     initPlatformState();
   }
 
-  void onStepCount(StepCount event) {
+  bool _isTracking = false;
+
+  void startTracking() {
+    _isTracking = true;
+    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+    _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(onPedestrianStatusError);
+
+    // 걸음 수 보정
     setState(() {
-      _steps = event.steps.toString();
+      _dailySteps--;
+      _steps = _dailySteps.toString();
+    });
+
+    Future.delayed(Duration.zero, () {
+      _stepCountStream = Pedometer.stepCountStream;
+      _stepCountStream.listen(onStepCount).onError(onStepCountError);
+    });
+  }
+
+  void stopTracking() {
+    _isTracking = false;
+    _pedestrianStatusStream = Stream.empty();
+    _stepCountStream = Stream.empty();
+  }
+
+  void onStepCount(StepCount event) {
+    if (!_isTracking) return;
+    setState(() {
+      _dailySteps++;
+      _steps = _dailySteps.toString();
     });
   }
 
@@ -43,14 +74,26 @@ class _PedometerPageState extends State<PedometerPage> {
     });
   }
 
-  void initPlatformState() {
-    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-    _pedestrianStatusStream
-        .listen(onPedestrianStatusChanged)
-        .onError(onPedestrianStatusError);
+  void initPlatformState() async{
+    if (await Permission.activityRecognition.request().isGranted) {
+      _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+      _pedestrianStatusStream
+          .listen(onPedestrianStatusChanged)
+          .onError(onPedestrianStatusError);
 
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(onStepCount).onError(onStepCountError);
+      _stepCountStream = Pedometer.stepCountStream;
+      _stepCountStream.listen(onStepCount).onError(onStepCountError);
+
+      // 매일 자정에 걸음 수 리셋
+      Timer(Duration(days: 1) -
+          DateTime.now().difference(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 24)), () {
+        setState(() {
+          _dailySteps = 0;
+        });
+      });
+    }else{
+      print('센서 권한이 거부되었습니다.');
+    }
 
     if (!mounted) return;
   }
@@ -98,7 +141,15 @@ class _PedometerPageState extends State<PedometerPage> {
                       ? const TextStyle(fontSize: 30)
                       : const TextStyle(fontSize: 20, color: Colors.red),
                 ),
-              )
+              ),
+              ElevatedButton(
+                onPressed: startTracking,
+                child: const Text('Start Tracking'),
+              ),
+              ElevatedButton(
+                onPressed: stopTracking,
+                child: const Text('Stop Tracking'),
+              ),
             ],
           ),
         ),
