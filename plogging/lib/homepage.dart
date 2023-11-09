@@ -40,9 +40,9 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // mapPage로 이동
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const MapPage(), // MapPage로 이동하도록 수정
-                ));
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const MapPage(), // MapPage로 이동하도록 수정
+                // ));
               },
               child: const Text('지도 보기'),
             ),
