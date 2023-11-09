@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:plogging/camerapage.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
-import 'package:plogging/mappage.dart';
 import 'package:plogging/pedometer.dart';
 import 'auth_service.dart';
 
