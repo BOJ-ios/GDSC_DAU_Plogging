@@ -146,7 +146,7 @@ class _CameraExampleState extends State<CameraExample> {
 
         // Load the YOLO model before running inference.
         await vision.loadYoloModel(
-            modelPath: 'assets/yolov8m_float16.tflite',
+            modelPath: 'assets/best_float32.tflite',
             labels: 'assets/coco_label.txt',
             modelVersion: 'yolov8',
             quantization: false,
