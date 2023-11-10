@@ -1,9 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:plogging/widgets/custom_outlined_button.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);
+
+  Future<QuerySnapshot> getSchools() {
+    return FirebaseFirestore.instance.collection('schools').orderBy('point', descending: true).get();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,216 +77,58 @@ class MainScreen extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       SizedBox(height: 9.v),
-                                      SizedBox(
-                                          height: 52.v,
-                                          width: 285.h,
-                                          child: Stack(
-                                              alignment: Alignment.bottomCenter,
-                                              children: [
-                                                Align(
-                                                    alignment:
-                                                        Alignment.topLeft,
+                                      FutureBuilder<QuerySnapshot>(
+                                      future: getSchools(),
+                                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        }
+
+                                        if (snapshot.hasData) {
+                                          return Column(
+                                            children: snapshot.data!.docs.asMap().entries.map((e) {
+                                              String schoolName = e.value.id;  // 'doc.id'는 문서의 이름(id)입니다.
+                                              String englishName = e.value['englishName'];
+                                              int point = e.value['point'];  // 'point' 필드의 데이터를 가져옵니다.
+                                              String rank = (e.key + 1).toString();  // index를 활용하여 등수를 매깁니다.
+                                              String formattedPoint = NumberFormat("#,###").format(point) + "P";
+
+                                              return Column(
+                                                children: [
+                                                  Align(
+                                                    alignment: Alignment.centerLeft,
                                                     child: Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 12.h),
-                                                        child: Text(
-                                                            "Donga-A University",
-                                                            style: theme
-                                                                .textTheme
-                                                                .bodySmall))),
-                                                Align(
-                                                    alignment:
-                                                        Alignment.bottomCenter,
-                                                    child: Card(
-                                                        clipBehavior:
-                                                            Clip.antiAlias,
-                                                        elevation: 0,
-                                                        margin:
-                                                            EdgeInsets.all(0),
-                                                        color:
-                                                            appTheme.gray30001,
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadiusStyle
-                                                                    .roundedBorder5),
-                                                        child: Container(
-                                                            height: 37.v,
-                                                            width: 283.h,
-                                                            decoration: AppDecoration
-                                                                .fillGray
-                                                                .copyWith(
-                                                                    borderRadius:
-                                                                        BorderRadiusStyle
-                                                                            .roundedBorder5),
-                                                            child: Stack(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                children: [
-                                                                  Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .bottomLeft,
-                                                                      child: Padding(
-                                                                          padding: EdgeInsets.fromLTRB(18.h, 10.v, 28.h, 7.v),
-                                                                          child: Row(children: [
-                                                                            Text("1위",
-                                                                                style: theme.textTheme.titleSmall),
-                                                                            Padding(
-                                                                                padding: EdgeInsets.only(left: 8.h),
-                                                                                child: Text("동아대학교", style: theme.textTheme.titleSmall)),
-                                                                            Spacer(),
-                                                                            Text("55,000 P",
-                                                                                style: theme.textTheme.titleSmall)
-                                                                          ]))),
-                                                                  _buildText(
-                                                                      context,
-                                                                      one: "1위",
-                                                                      one1:
-                                                                          "동아대학교",
-                                                                      pCounter:
-                                                                          "55,000 P")
-                                                                ])))),
-                                                Align(
-                                                    alignment:
-                                                        Alignment.bottomCenter,
-                                                    child: Card(
-                                                        clipBehavior:
-                                                            Clip.antiAlias,
-                                                        elevation: 0,
-                                                        margin:
-                                                            EdgeInsets.all(0),
-                                                        color:
-                                                            appTheme.yellow600,
-                                                        shape: RoundedRectangleBorder(
-                                                            side: BorderSide(
-                                                                color: theme
-                                                                    .colorScheme
-                                                                    .primaryContainer,
-                                                                width: 1.h),
-                                                            borderRadius:
-                                                                BorderRadiusStyle
-                                                                    .roundedBorder5),
-                                                        child: Container(
-                                                            height: 37.v,
-                                                            width: 283.h,
-                                                            padding: EdgeInsets.symmetric(
-                                                                horizontal:
-                                                                    17.h,
-                                                                vertical: 6.v),
-                                                            decoration: AppDecoration
-                                                                .outlinePrimaryContainer
-                                                                .copyWith(
-                                                                    borderRadius:
-                                                                        BorderRadiusStyle
-                                                                            .roundedBorder5),
-                                                            child: Stack(
-                                                                alignment: Alignment
-                                                                    .bottomLeft,
-                                                                children: [
-                                                                  Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .bottomLeft,
-                                                                      child: Container(
-                                                                          height: 14
-                                                                              .v,
-                                                                          width: 236
-                                                                              .h,
-                                                                          margin:
-                                                                              EdgeInsets.only(bottom: 1.v),
-                                                                          decoration: BoxDecoration(color: appTheme.yellow600))),
-                                                                  Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .bottomLeft,
-                                                                      child: Padding(
-                                                                          padding: EdgeInsets.only(bottom: 1.v),
-                                                                          child: Row(children: [
-                                                                            Text("1위",
-                                                                                style: theme.textTheme.titleSmall),
-                                                                            Padding(
-                                                                                padding: EdgeInsets.only(left: 8.h),
-                                                                                child: Text("동아대학교", style: theme.textTheme.titleSmall))
-                                                                          ]))),
-                                                                  Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .bottomRight,
-                                                                      child: Padding(
-                                                                          padding: EdgeInsets.only(
-                                                                              right: 10
-                                                                                  .h),
-                                                                          child: Text(
-                                                                              "550,000 P",
-                                                                              style: CustomTextStyles.titleSmallInter)))
-                                                                ]))))
-                                              ])),
-                                      SizedBox(height: 8.v),
-                                      Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 19.h),
-                                              child: Text(
-                                                  "Bukyong National University",
-                                                  style: theme
-                                                      .textTheme.bodySmall))),
-                                      Padding(
-                                          padding: EdgeInsets.only(left: 5.h),
-                                          child: _buildText(context,
-                                              one: "2위",
-                                              one1: "부경대학교",
-                                              pCounter: "500,000 P")),
-                                      SizedBox(height: 12.v),
-                                      Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 18.h),
-                                              child: Text(
-                                                  "Busan National University",
-                                                  style: theme
-                                                      .textTheme.bodySmall))),
-                                      Padding(
-                                          padding: EdgeInsets.only(left: 5.h),
-                                          child: _buildText(context,
-                                              one: "3위",
-                                              one1: "부산대학교",
-                                              pCounter: "480,000 P")),
-                                      SizedBox(height: 12.v),
-                                      Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 17.h),
-                                              child: Text(
-                                                  "Kyungsung University",
-                                                  style: theme
-                                                      .textTheme.bodySmall))),
-                                      Padding(
-                                          padding: EdgeInsets.only(left: 5.h),
-                                          child: _buildText(context,
-                                              one: "4위",
-                                              one1: "경상대학교",
-                                              pCounter: "450,000 P")),
-                                      SizedBox(height: 13.v),
-                                      Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 20.h),
-                                              child: Text(
-                                                  "Korea Maritime and Ocean University",
-                                                  style: theme
-                                                      .textTheme.bodySmall))),
-                                      Padding(
-                                          padding: EdgeInsets.only(left: 5.h),
-                                          child: _buildText(context,
-                                              one: "4위",
-                                              one1: "한국한양대학교",
-                                              pCounter: "400,000 P"))
+                                                      padding: EdgeInsets.only(left: 19.h),
+                                                      child: Text(
+                                                        englishName,
+                                                        style: theme.textTheme.bodySmall,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 5.h),
+                                                    child: _buildText(
+                                                      context,
+                                                      one: rank + "위",  // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                      one1: schoolName,
+                                                      pCounter: formattedPoint,  // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                      backgroundColor: rank == "1" ? appTheme.yellow600 : Color.fromARGB(255, 219, 219, 219),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 12.v),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          );
+                                        }
+
+                                        if (snapshot.hasError) {
+                                          return Text('Error: ${snapshot.error}');
+                                        }
+
+                                        return Text('No data');
+                                      },
+                                    ),
                                     ]))),
                         CustomOutlinedButton(
                             width: 130.h,
@@ -331,38 +179,47 @@ class MainScreen extends StatelessWidget {
   }
 
   /// Common widget
-  Widget _buildText(
-    BuildContext context, {
-    required String one,
-    required String one1,
-    required String pCounter,
-  }) {
-    return Container(
-        padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 7.v),
-        decoration: AppDecoration.fillGray
-            .copyWith(borderRadius: BorderRadiusStyle.roundedBorder5),
-        child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                  padding: EdgeInsets.only(top: 3.v),
-                  child: Text(one,
-                      style: theme.textTheme.titleSmall!
-                          .copyWith(color: appTheme.black900))),
-              Padding(
-                  padding: EdgeInsets.only(left: 9.h, top: 3.v),
-                  child: Text(one1,
-                      style: theme.textTheme.titleSmall!
-                          .copyWith(color: appTheme.black900))),
-              Spacer(),
-              Padding(
-                  padding: EdgeInsets.only(top: 3.v, right: 10.h),
-                  child: Text(pCounter,
-                      style: CustomTextStyles.titleSmallInter
-                          .copyWith(color: appTheme.black900)))
-            ]));
-  }
+Widget _buildText(
+  BuildContext context, {
+  required String one,
+  required String one1,
+  required String pCounter, required Color backgroundColor,
+}) {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 7.v),
+    decoration: BoxDecoration(
+      color: backgroundColor,  // 배경색을 설정합니다.
+      borderRadius: BorderRadiusStyle.roundedBorder5,
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 3.v),
+          child: Text(one,
+            style: theme.textTheme.titleSmall!
+              .copyWith(color: appTheme.black900)),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 9.h, top: 3.v),
+          child: Text(one1,
+            style: theme.textTheme.titleSmall!
+              .copyWith(color: appTheme.black900)),
+        ),
+        Spacer(),
+        Padding(
+          padding: EdgeInsets.only(top: 3.v, right: 10.h),
+          child: Text(pCounter,
+            style: CustomTextStyles.titleSmallInter
+              .copyWith(color: appTheme.black900)),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   /// Navigates to the cameraScreen when the action is triggered.
   onTapImgHeart(BuildContext context) {
