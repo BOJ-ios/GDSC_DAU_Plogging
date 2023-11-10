@@ -4,8 +4,36 @@ import 'package:plogging/core/app_export.dart';
 import 'package:plogging/widgets/custom_outlined_button.dart';
 import 'package:flutter/material.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    fetchDataFromFirebase();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This will ensure data is refreshed every time the widget is returned to from a different screen.
+    fetchDataFromFirebase();
+  }
+
+  void fetchDataFromFirebase() async {
+    // Fetch your data from Firebase and then update the state
+    var schoolsSnapshot = await getSchools();
+    if (mounted) {
+      setState(() {
+        // Update your state with the new data
+      });
+    }
+  }
 
   Future<QuerySnapshot> getSchools() {
     return FirebaseFirestore.instance
@@ -248,17 +276,22 @@ class MainScreen extends StatelessWidget {
   }
 
   /// Navigates to the cameraScreen when the action is triggered.
-  onTapImgHeart(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.cameraScreen);
+  onTapImgHeart(BuildContext context) async {
+    await Navigator.pushNamed(context, AppRoutes.cameraScreen);
+    fetchDataFromFirebase();
   }
 
   /// Navigates to the mapScreen when the action is triggered.
-  onTapImgMapPin(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.mapScreen);
+  onTapImgMapPin(BuildContext context) async {
+    await Navigator.pushNamed(context, AppRoutes.mapScreen);
+    fetchDataFromFirebase();
   }
 
   /// Navigates to the profileScreen when the action is triggered.
-  onTapImgUser(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.profileScreen);
+  onTapImgUser(BuildContext context) async {
+    // Navigate to the ProfileScreen and wait for it to return
+    await Navigator.pushNamed(context, AppRoutes.profileScreen);
+    // After returning from the ProfileScreen, fetch the data again
+    fetchDataFromFirebase();
   }
 }
