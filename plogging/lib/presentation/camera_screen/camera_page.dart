@@ -276,26 +276,13 @@ class _CameraExampleState extends State<CameraExample> {
               style: CustomTextStyles.titleMediumOnErrorContainer),
           actions: [
             CustomImageView(
-                imagePath: ImageConstant.imgHeart,
-                height: 24
-                    .adaptSize, // 'adaptSize' is a custom extension method to handle responsiveness
+                imagePath: ImageConstant.imgMapPin,
+                height: 24.adaptSize,
                 width: 24.adaptSize,
                 margin: EdgeInsets.symmetric(vertical: 2.v),
                 onTap: () {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (_) => const MapScreen()));
-                }),
-            const SizedBox(
-              width: 35,
-            ),
-            CustomImageView(
-                imagePath: ImageConstant.imgGroup952,
-                height: 16.adaptSize,
-                width: 16.adaptSize,
-                margin: EdgeInsets.symmetric(vertical: 3.v),
-                onTap: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (_) => const MainScreen()));
                 }),
             const SizedBox(
               width: 35,
