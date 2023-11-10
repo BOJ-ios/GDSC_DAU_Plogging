@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:plogging/auth_service.dart';
@@ -34,7 +33,7 @@ class LogInScreen extends StatelessWidget {
       width: double.maxFinite,
       child: Column(
         children: [
-          buildTopSection(context),
+          buildTopSection(context, authService),
           SizedBox(height: 22.v),
           buildSignInButton(context, authService),
           SizedBox(height: 30.v),
@@ -46,7 +45,7 @@ class LogInScreen extends StatelessWidget {
     );
   }
 
-  Widget buildTopSection(BuildContext context) {
+  Widget buildTopSection(BuildContext context, authService) {
     return SizedBox(
       height: 445.v,
       width: double.maxFinite,
@@ -64,14 +63,14 @@ class LogInScreen extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(
                 horizontal: 20.h), // Set horizontal padding to 20
-            child: buildSignInForm(context),
+            child: buildSignInForm(context, authService),
           ),
         ],
       ),
     );
   }
 
-  Widget buildSignInForm(BuildContext context) {
+  Widget buildSignInForm(BuildContext context, AuthService authService) {
     return Align(
       alignment: Alignment.center,
       child: Column(
@@ -82,15 +81,17 @@ class LogInScreen extends StatelessWidget {
           const Spacer(),
           buildSignInText(),
           SizedBox(height: 44.v),
-          buildEmailField(),
+          buildTextField(
+              "Enter your Email", CustomTextStyles.titleSmallInterBlack900),
           SizedBox(height: 7.v),
           buildEmailInput(),
           SizedBox(height: 15.v),
-          buildPasswordField(),
+          buildTextField(
+              "Enter your Password", CustomTextStyles.titleSmallInterBlack900),
           SizedBox(height: 7.v),
           buildPasswordInput(),
           SizedBox(height: 10.v),
-          buildPasswordRecovery(context),
+          buildPasswordRecovery(context, authService),
         ],
       ),
     );
@@ -118,9 +119,8 @@ class LogInScreen extends StatelessWidget {
     );
   }
 
-  Widget buildEmailField() {
-    return Text("Enter your email",
-        style: CustomTextStyles.titleSmallInterBlack900);
+  Widget buildTextField(String text, TextStyle? style) {
+    return Text(text, style: style);
   }
 
   Widget buildEmailInput() {
@@ -132,11 +132,6 @@ class LogInScreen extends StatelessWidget {
     );
   }
 
-  Widget buildPasswordField() {
-    return Text("Enter your Password",
-        style: CustomTextStyles.titleSmallInterBlack900);
-  }
-
   Widget buildPasswordInput() {
     return CustomTextFormField(
       controller: passwordController,
@@ -146,10 +141,36 @@ class LogInScreen extends StatelessWidget {
     );
   }
 
-  Widget buildPasswordRecovery(BuildContext context) {
+  Widget buildPasswordRecovery(BuildContext context, AuthService authService) {
     return GestureDetector(
-      onTap: () => {},
-      child: Text("Recovery Password",
+      onTap: () => {
+        // 3. 버튼 이벤트 처리: authService의 비밀번호 찾기 기능 호출
+        if (emailController.text.isEmpty)
+          {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("이메일을 입력해주세요.")),
+            )
+          }
+        else
+          {
+            authService.resetPassword(
+              email: emailController.text,
+              onSuccess: () {
+                // 4. 사용자 피드백 제공: 성공 알림
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("비밀번호 재설정 이메일을 보냈습니다.")),
+                );
+              },
+              onError: (error) {
+                // 4. 사용자 피드백 제공: 에러 알림
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error : $error")),
+                );
+              },
+            )
+          }
+      },
+      child: Text("Reset Password",
           style: CustomTextStyles.titleSmallInterBluegray400),
     );
   }
