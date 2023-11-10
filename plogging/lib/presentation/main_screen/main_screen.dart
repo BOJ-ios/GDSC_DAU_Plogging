@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:plogging/widgets/custom_outlined_button.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:plogging/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -12,27 +15,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  Map<String, dynamic> userData = {};
+  List<Map<String, dynamic>> schoolsData = [];
+
   @override
   void initState() {
     super.initState();
-    fetchDataFromFirebase();
+    fetchSchoolsData();
+    fetchUserData();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // This will ensure data is refreshed every time the widget is returned to from a different screen.
-    fetchDataFromFirebase();
-  }
-
-  void fetchDataFromFirebase() async {
-    // Fetch your data from Firebase and then update the state
-    var schoolsSnapshot = await getSchools();
-    if (mounted) {
-      setState(() {
-        // Update your state with the new data
-      });
-    }
+    fetchSchoolsData();
+    fetchUserData();
   }
 
   Future<QuerySnapshot> getSchools() {
@@ -42,63 +39,101 @@ class _MainScreenState extends State<MainScreen> {
         .get();
   }
 
+  void fetchSchoolsData() async {
+    QuerySnapshot<Map<String, dynamic>> schoolsSnapshot =
+        await FirebaseFirestore.instance
+            .collection('schools')
+            .orderBy('point', descending: true)
+            .get();
+
+    setState(() {
+      schoolsData = schoolsSnapshot.docs.map((doc) => doc.data()).toList();
+    });
+  }
+
+  void fetchUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (userDoc.exists) {
+          setState(() {
+            userData = userDoc.data() as Map<String, dynamic>;
+          });
+        }
+      } catch (e) {
+        print("Error fetching user data: $e");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
+    int userPoint = userData['point'] ?? 0;
+
     return Scaffold(
-        appBar: AppBar(
-          shadowColor: Colors.transparent,
-          elevation: 0,
-          toolbarHeight: 55.v,
-          backgroundColor: Colors.white,
-          leading: null,
-          actions: [
-            CustomImageView(
-                imagePath: ImageConstant.imgHeart,
-                height: 24
-                    .adaptSize, // 'adaptSize' is a custom extension method to handle responsiveness
-                width: 24.adaptSize,
-                margin: EdgeInsets.symmetric(vertical: 2.v),
-                onTap: () {
-                  onTapImgHeart(context);
-                }),
-            const SizedBox(
-              width: 35,
-            ),
-            CustomImageView(
-                imagePath: ImageConstant.imgMapPin,
-                height: 24.adaptSize,
-                width: 24.adaptSize,
-                margin: EdgeInsets.symmetric(vertical: 3.v),
-                onTap: () {
-                  onTapImgMapPin(context);
-                }),
-            const SizedBox(
-              width: 35,
-            ),
-            CustomImageView(
-                imagePath: ImageConstant.imgUser,
-                height: 29.adaptSize,
-                width: 29.adaptSize,
-                onTap: () {
-                  onTapImgUser(context);
-                }),
-            const SizedBox(
-              width: 20,
-            ),
-          ],
-        ),
-        body: Container(
-            width: double.maxFinite,
-            padding: EdgeInsets.symmetric(horizontal: 21.h, vertical: 5.v),
-            child: Column(children: [
+      appBar: AppBar(
+        shadowColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 55.v,
+        backgroundColor: Colors.white,
+        leading: null,
+        actions: [
+          CustomImageView(
+              imagePath: ImageConstant.imgHeart,
+              height: 24.adaptSize,
+              width: 24.adaptSize,
+              margin: EdgeInsets.symmetric(vertical: 2.v),
+              onTap: () {
+                movePage(context, AppRoutes.cameraScreen);
+              }),
+          const SizedBox(
+            width: 35,
+          ),
+          CustomImageView(
+              imagePath: ImageConstant.imgMapPin,
+              height: 24.adaptSize,
+              width: 24.adaptSize,
+              margin: EdgeInsets.symmetric(vertical: 3.v),
+              onTap: () {
+                movePage(context, AppRoutes.mapScreen);
+              }),
+          const SizedBox(
+            width: 35,
+          ),
+          CustomImageView(
+              imagePath: ImageConstant.imgUser,
+              height: 29.adaptSize,
+              width: 29.adaptSize,
+              onTap: () {
+                movePage(context, AppRoutes.profileScreen);
+              }),
+          const SizedBox(
+            width: 20,
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          width: double.maxFinite,
+          padding: EdgeInsets.symmetric(horizontal: 21.h, vertical: 5.v),
+          child: Column(
+            children: [
               SizedBox(height: 1.v),
               Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                      padding: EdgeInsets.only(left: 10.h),
-                      child: Text("My Point : 1000 P",
-                          style: CustomTextStyles.pointTest))),
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10.h),
+                  child: Text(
+                    "My Point : ${userPoint}P",
+                    style: CustomTextStyles.pointTest,
+                  ),
+                ),
+              ),
               SizedBox(height: 10.v),
               Container(
                   margin: EdgeInsets.only(left: 3.h),
@@ -155,24 +190,20 @@ class _MainScreenState extends State<MainScreen> {
                                           ConnectionState.waiting) {
                                         return const CircularProgressIndicator();
                                       }
-
                                       if (snapshot.hasData) {
                                         return Column(
                                           children: snapshot.data!.docs
                                               .asMap()
                                               .entries
                                               .map((e) {
-                                            String schoolName = e.value
-                                                .id; // 'doc.id'는 문서의 이름(id)입니다.
+                                            String schoolName = e.value.id;
                                             String englishName =
                                                 e.value['englishName'];
-                                            int point = e.value[
-                                                'point']; // 'point' 필드의 데이터를 가져옵니다.
-                                            String rank = (e.key + 1)
-                                                .toString(); // index를 활용하여 등수를 매깁니다.
+                                            int point = e.value['point'];
+                                            String rank =
+                                                (e.key + 1).toString();
                                             String formattedPoint =
                                                 "${NumberFormat("#,###").format(point)}P";
-
                                             return Column(
                                               children: [
                                                 Align(
@@ -181,11 +212,9 @@ class _MainScreenState extends State<MainScreen> {
                                                   child: Padding(
                                                     padding: EdgeInsets.only(
                                                         left: 13.h),
-                                                    child: Text(
-                                                      englishName,
-                                                      style: theme
-                                                          .textTheme.bodySmall,
-                                                    ),
+                                                    child: Text(englishName,
+                                                        style: theme.textTheme
+                                                            .bodySmall),
                                                   ),
                                                 ),
                                                 SizedBox(height: 2.v),
@@ -194,11 +223,9 @@ class _MainScreenState extends State<MainScreen> {
                                                       left: 5.h),
                                                   child: _buildText(
                                                     context,
-                                                    one:
-                                                        "$rank위", // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                    one: "$rank위",
                                                     one1: schoolName,
-                                                    pCounter:
-                                                        formattedPoint, // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                    pCounter: formattedPoint,
                                                     backgroundColor: rank == "1"
                                                         ? appTheme.yellow600
                                                         : const Color.fromARGB(
@@ -231,10 +258,19 @@ class _MainScreenState extends State<MainScreen> {
                         alignment: Alignment.topLeft)
                   ])),
               SizedBox(height: 5.v)
-            ])));
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  /// Common widget
+  movePage(BuildContext context, String path) async {
+    await Navigator.pushNamed(context, path);
+    fetchSchoolsData();
+    fetchUserData();
+  }
+
   Widget _buildText(
     BuildContext context, {
     required String one,
@@ -245,7 +281,7 @@ class _MainScreenState extends State<MainScreen> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 7.v),
       decoration: BoxDecoration(
-        color: backgroundColor, // 배경색을 설정합니다.
+        color: backgroundColor,
         borderRadius: BorderRadiusStyle.roundedBorder5,
       ),
       child: Row(
@@ -274,25 +310,5 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
     );
-  }
-
-  /// Navigates to the cameraScreen when the action is triggered.
-  onTapImgHeart(BuildContext context) async {
-    await Navigator.pushNamed(context, AppRoutes.cameraScreen);
-    fetchDataFromFirebase();
-  }
-
-  /// Navigates to the mapScreen when the action is triggered.
-  onTapImgMapPin(BuildContext context) async {
-    await Navigator.pushNamed(context, AppRoutes.mapScreen);
-    fetchDataFromFirebase();
-  }
-
-  /// Navigates to the profileScreen when the action is triggered.
-  onTapImgUser(BuildContext context) async {
-    // Navigate to the ProfileScreen and wait for it to return
-    await Navigator.pushNamed(context, AppRoutes.profileScreen);
-    // After returning from the ProfileScreen, fetch the data again
-    fetchDataFromFirebase();
   }
 }
