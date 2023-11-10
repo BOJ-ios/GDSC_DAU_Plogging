@@ -26,6 +26,10 @@ class CustomTextStyles {
         color: theme.colorScheme.onErrorContainer,
         fontSize: 17.fSize,
       );
+  static get pointTest => theme.textTheme.titleMedium!.copyWith(
+        color: theme.colorScheme.onErrorContainer,
+        fontSize: 20.fSize,
+      );
   static get titleMediumRoboto => theme.textTheme.titleMedium!.roboto.copyWith(
         fontSize: 17.fSize,
       );
