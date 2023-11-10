@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:plogging/camerapage.dart';
+import 'package:plogging/presentation/camera_screen/camera_page.dart';
 import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 import 'package:plogging/pedometer.dart';

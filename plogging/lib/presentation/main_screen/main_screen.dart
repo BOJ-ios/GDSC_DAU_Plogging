@@ -8,7 +8,10 @@ class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);
 
   Future<QuerySnapshot> getSchools() {
-    return FirebaseFirestore.instance.collection('schools').orderBy('point', descending: true).get();
+    return FirebaseFirestore.instance
+        .collection('schools')
+        .orderBy('point', descending: true)
+        .get();
   }
 
   @override
@@ -78,57 +81,81 @@ class MainScreen extends StatelessWidget {
                                     children: [
                                       SizedBox(height: 9.v),
                                       FutureBuilder<QuerySnapshot>(
-                                      future: getSchools(),
-                                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return CircularProgressIndicator();
-                                        }
+                                        future: getSchools(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<QuerySnapshot>
+                                                snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const CircularProgressIndicator();
+                                          }
 
-                                        if (snapshot.hasData) {
-                                          return Column(
-                                            children: snapshot.data!.docs.asMap().entries.map((e) {
-                                              String schoolName = e.value.id;  // 'doc.id'는 문서의 이름(id)입니다.
-                                              String englishName = e.value['englishName'];
-                                              int point = e.value['point'];  // 'point' 필드의 데이터를 가져옵니다.
-                                              String rank = (e.key + 1).toString();  // index를 활용하여 등수를 매깁니다.
-                                              String formattedPoint = NumberFormat("#,###").format(point) + "P";
+                                          if (snapshot.hasData) {
+                                            return Column(
+                                              children: snapshot.data!.docs
+                                                  .asMap()
+                                                  .entries
+                                                  .map((e) {
+                                                String schoolName = e.value
+                                                    .id; // 'doc.id'는 문서의 이름(id)입니다.
+                                                String englishName =
+                                                    e.value['englishName'];
+                                                int point = e.value[
+                                                    'point']; // 'point' 필드의 데이터를 가져옵니다.
+                                                String rank = (e.key + 1)
+                                                    .toString(); // index를 활용하여 등수를 매깁니다.
+                                                String formattedPoint =
+                                                    "${NumberFormat("#,###").format(point)}P";
 
-                                              return Column(
-                                                children: [
-                                                  Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Padding(
-                                                      padding: EdgeInsets.only(left: 19.h),
-                                                      child: Text(
-                                                        englishName,
-                                                        style: theme.textTheme.bodySmall,
+                                                return Column(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 19.h),
+                                                        child: Text(
+                                                          englishName,
+                                                          style: theme.textTheme
+                                                              .bodySmall,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 5.h),
-                                                    child: _buildText(
-                                                      context,
-                                                      one: rank + "위",  // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
-                                                      one1: schoolName,
-                                                      pCounter: formattedPoint,  // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
-                                                      backgroundColor: rank == "1" ? appTheme.yellow600 : Color.fromARGB(255, 219, 219, 219),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 5.h),
+                                                      child: _buildText(
+                                                        context,
+                                                        one:
+                                                            "$rank위", // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                        one1: schoolName,
+                                                        pCounter:
+                                                            formattedPoint, // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                        backgroundColor: rank ==
+                                                                "1"
+                                                            ? appTheme.yellow600
+                                                            : const Color
+                                                                .fromARGB(255,
+                                                                219, 219, 219),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  SizedBox(height: 12.v),
-                                                ],
-                                              );
-                                            }).toList(),
-                                          );
-                                        }
+                                                    SizedBox(height: 12.v),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            );
+                                          }
 
-                                        if (snapshot.hasError) {
-                                          return Text('Error: ${snapshot.error}');
-                                        }
+                                          if (snapshot.hasError) {
+                                            return Text(
+                                                'Error: ${snapshot.error}');
+                                          }
 
-                                        return Text('No data');
-                                      },
-                                    ),
+                                          return const Text('No data');
+                                        },
+                                      ),
                                     ]))),
                         CustomOutlinedButton(
                             width: 130.h,
@@ -169,7 +196,7 @@ class MainScreen extends StatelessWidget {
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text("0%", style: theme.textTheme.labelLarge),
-                Spacer(),
+                const Spacer(),
                 Text("80%", style: theme.textTheme.labelLarge),
                 Padding(
                     padding: EdgeInsets.only(left: 29.h),
@@ -179,47 +206,46 @@ class MainScreen extends StatelessWidget {
   }
 
   /// Common widget
-Widget _buildText(
-  BuildContext context, {
-  required String one,
-  required String one1,
-  required String pCounter, required Color backgroundColor,
-}) {
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 7.v),
-    decoration: BoxDecoration(
-      color: backgroundColor,  // 배경색을 설정합니다.
-      borderRadius: BorderRadiusStyle.roundedBorder5,
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 3.v),
-          child: Text(one,
-            style: theme.textTheme.titleSmall!
-              .copyWith(color: appTheme.black900)),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 9.h, top: 3.v),
-          child: Text(one1,
-            style: theme.textTheme.titleSmall!
-              .copyWith(color: appTheme.black900)),
-        ),
-        Spacer(),
-        Padding(
-          padding: EdgeInsets.only(top: 3.v, right: 10.h),
-          child: Text(pCounter,
-            style: CustomTextStyles.titleSmallInter
-              .copyWith(color: appTheme.black900)),
-        ),
-      ],
-    ),
-  );
-}
-
-
+  Widget _buildText(
+    BuildContext context, {
+    required String one,
+    required String one1,
+    required String pCounter,
+    required Color backgroundColor,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 7.v),
+      decoration: BoxDecoration(
+        color: backgroundColor, // 배경색을 설정합니다.
+        borderRadius: BorderRadiusStyle.roundedBorder5,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 3.v),
+            child: Text(one,
+                style: theme.textTheme.titleSmall!
+                    .copyWith(color: appTheme.black900)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 9.h, top: 3.v),
+            child: Text(one1,
+                style: theme.textTheme.titleSmall!
+                    .copyWith(color: appTheme.black900)),
+          ),
+          const Spacer(),
+          Padding(
+            padding: EdgeInsets.only(top: 3.v, right: 10.h),
+            child: Text(pCounter,
+                style: CustomTextStyles.titleSmallInter
+                    .copyWith(color: appTheme.black900)),
+          ),
+        ],
+      ),
+    );
+  }
 
   /// Navigates to the cameraScreen when the action is triggered.
   onTapImgHeart(BuildContext context) {

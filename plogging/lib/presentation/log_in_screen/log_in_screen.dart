@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
 import 'package:plogging/presentation/main_screen/main_screen.dart';
 import 'package:plogging/widgets/custom_text_form_field.dart';
 import 'package:plogging/widgets/custom_elevated_button.dart';
