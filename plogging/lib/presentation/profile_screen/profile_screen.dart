@@ -47,6 +47,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           String userName = userData['name'] ?? 'No Name';
           String userEmail = userData['email'] ?? 'No Email';
           String userSchool = userData['schoolName'] ?? 'No School';
+          int trashCount = userData['trashCount'] ?? 0;
+          int point = userData['point'] ?? 0;
 
           return FutureBuilder<int>(
             future: _markersCountFuture,
@@ -87,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ])),
                     const SizedBox(height: 40),
                     Padding(
-                      padding: EdgeInsets.only(left: 80.h, right: 77.h),
+                      padding: EdgeInsets.only(left: 60.h, right: 60.h),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -100,10 +102,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       .titleMediumRobotoBlueA200),
                             ],
                           ),
+                          Column(
+                            children: [
+                              Text("Picked", style: theme.textTheme.bodyMedium),
+                              Text("$trashCount",
+                                  style: CustomTextStyles
+                                      .titleMediumRobotoBlueA200),
+                            ],
+                          ),
                           Column(children: [
                             Text("Total Point",
                                 style: theme.textTheme.bodyMedium),
-                            Text("1000 P",
+                            Text("$point",
                                 style:
                                     CustomTextStyles.titleMediumRobotoBlueA200)
                           ]),
