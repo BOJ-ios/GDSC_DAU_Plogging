@@ -45,192 +45,193 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
-    return SafeArea(
-        child: Scaffold(
-            body: Container(
-                width: double.maxFinite,
-                padding: EdgeInsets.symmetric(horizontal: 21.h, vertical: 22.v),
-                child: Column(children: [
-                  Align(
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomImageView(
-                                imagePath: ImageConstant.imgHeart,
-                                height: 24.adaptSize,
-                                width: 24.adaptSize,
-                                margin: EdgeInsets.symmetric(vertical: 2.v),
-                                onTap: () {
-                                  onTapImgHeart(context);
-                                }),
-                            CustomImageView(
-                                imagePath: ImageConstant.imgMapPin,
-                                height: 24.adaptSize,
-                                width: 24.adaptSize,
-                                margin: EdgeInsets.only(
-                                    left: 28.h, top: 2.v, bottom: 2.v),
-                                onTap: () {
-                                  onTapImgMapPin(context);
-                                }),
-                            CustomImageView(
-                                imagePath: ImageConstant.imgUser,
-                                height: 29.adaptSize,
-                                width: 29.adaptSize,
-                                margin: EdgeInsets.only(left: 28.h),
-                                onTap: () {
-                                  onTapImgUser(context);
-                                })
-                          ])),
-                  SizedBox(height: 1.v),
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                          padding: EdgeInsets.only(left: 12.h),
-                          child: Text("My Point : 1000 P",
-                              style: CustomTextStyles
-                                  .titleMediumOnErrorContainer))),
-                  SizedBox(height: 17.v),
-                  _buildFive(context),
-                  SizedBox(height: 16.v),
-                  SizedBox(
-                      height: 374.v,
-                      width: 317.h,
-                      child: Stack(alignment: Alignment.topLeft, children: [
-                        Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                                padding:
-                                    EdgeInsets.fromLTRB(13.h, 19.v, 13.h, 20.v),
-                                decoration: AppDecoration.outlineGrayCc,
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      SizedBox(height: 9.v),
-                                      FutureBuilder<QuerySnapshot>(
-                                        future: getSchools(),
-                                        builder: (BuildContext context,
-                                            AsyncSnapshot<QuerySnapshot>
-                                                snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const CircularProgressIndicator();
-                                          }
+    return Scaffold(
+        appBar: AppBar(
+          shadowColor: Colors.transparent,
+          elevation: 0,
+          toolbarHeight: 55.v,
+          backgroundColor: Colors.white,
+          leading: null,
+          actions: [
+            CustomImageView(
+                imagePath: ImageConstant.imgHeart,
+                height: 24
+                    .adaptSize, // 'adaptSize' is a custom extension method to handle responsiveness
+                width: 24.adaptSize,
+                margin: EdgeInsets.symmetric(vertical: 2.v),
+                onTap: () {
+                  onTapImgHeart(context);
+                }),
+            const SizedBox(
+              width: 35,
+            ),
+            CustomImageView(
+                imagePath: ImageConstant.imgGroup952,
+                height: 16.adaptSize,
+                width: 16.adaptSize,
+                margin: EdgeInsets.symmetric(vertical: 3.v),
+                onTap: () {
+                  onTapImgMapPin(context);
+                }),
+            const SizedBox(
+              width: 35,
+            ),
+            CustomImageView(
+                imagePath: ImageConstant.imgUser,
+                height: 29.adaptSize,
+                width: 29.adaptSize,
+                onTap: () {
+                  onTapImgUser(context);
+                }),
+            const SizedBox(
+              width: 20,
+            ),
+          ],
+        ),
+        body: Container(
+            width: double.maxFinite,
+            padding: EdgeInsets.symmetric(horizontal: 21.h, vertical: 5.v),
+            child: Column(children: [
+              SizedBox(height: 1.v),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 10.h),
+                      child: Text("My Point : 1000 P",
+                          style: CustomTextStyles.pointTest))),
+              SizedBox(height: 10.v),
+              Container(
+                  margin: EdgeInsets.only(left: 3.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 13.h, vertical: 19.v),
+                  decoration: AppDecoration.fillIndigoA.copyWith(
+                      borderRadius: BorderRadiusStyle.roundedBorder25),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Garbage Collection Point",
+                            style: CustomTextStyles.titleMediumRoboto)),
+                    SizedBox(height: 9.v),
+                    CustomImageView(
+                        imagePath: ImageConstant.imgFrame1566,
+                        height: 32.v,
+                        width: 286.h),
+                    SizedBox(height: 5.v),
+                    Padding(
+                        padding: EdgeInsets.only(right: 3.h),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("0%", style: theme.textTheme.labelLarge),
+                              const Spacer(),
+                              Text("80%", style: theme.textTheme.labelLarge),
+                              Padding(
+                                  padding: EdgeInsets.only(left: 29.h),
+                                  child: Text("100%",
+                                      style: theme.textTheme.labelLarge))
+                            ]))
+                  ])),
+              SizedBox(height: 16.v),
+              SizedBox(
+                  height: 374.v,
+                  width: 317.h,
+                  child: Stack(alignment: Alignment.topLeft, children: [
+                    Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                            padding:
+                                EdgeInsets.fromLTRB(13.h, 19.v, 13.h, 20.v),
+                            decoration: AppDecoration.outlineGrayCc,
+                            child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(height: 9.v),
+                                  FutureBuilder<QuerySnapshot>(
+                                    future: getSchools(),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CircularProgressIndicator();
+                                      }
 
-                                          if (snapshot.hasData) {
+                                      if (snapshot.hasData) {
+                                        return Column(
+                                          children: snapshot.data!.docs
+                                              .asMap()
+                                              .entries
+                                              .map((e) {
+                                            String schoolName = e.value
+                                                .id; // 'doc.id'는 문서의 이름(id)입니다.
+                                            String englishName =
+                                                e.value['englishName'];
+                                            int point = e.value[
+                                                'point']; // 'point' 필드의 데이터를 가져옵니다.
+                                            String rank = (e.key + 1)
+                                                .toString(); // index를 활용하여 등수를 매깁니다.
+                                            String formattedPoint =
+                                                "${NumberFormat("#,###").format(point)}P";
+
                                             return Column(
-                                              children: snapshot.data!.docs
-                                                  .asMap()
-                                                  .entries
-                                                  .map((e) {
-                                                String schoolName = e.value
-                                                    .id; // 'doc.id'는 문서의 이름(id)입니다.
-                                                String englishName =
-                                                    e.value['englishName'];
-                                                int point = e.value[
-                                                    'point']; // 'point' 필드의 데이터를 가져옵니다.
-                                                String rank = (e.key + 1)
-                                                    .toString(); // index를 활용하여 등수를 매깁니다.
-                                                String formattedPoint =
-                                                    "${NumberFormat("#,###").format(point)}P";
-
-                                                return Column(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 19.h),
-                                                        child: Text(
-                                                          englishName,
-                                                          style: theme.textTheme
-                                                              .bodySmall,
-                                                        ),
-                                                      ),
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 13.h),
+                                                    child: Text(
+                                                      englishName,
+                                                      style: theme
+                                                          .textTheme.bodySmall,
                                                     ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(
-                                                          left: 5.h),
-                                                      child: _buildText(
-                                                        context,
-                                                        one:
-                                                            "$rank위", // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
-                                                        one1: schoolName,
-                                                        pCounter:
-                                                            formattedPoint, // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
-                                                        backgroundColor: rank ==
-                                                                "1"
-                                                            ? appTheme.yellow600
-                                                            : const Color
-                                                                .fromARGB(255,
-                                                                219, 219, 219),
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 12.v),
-                                                  ],
-                                                );
-                                              }).toList(),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 2.v),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 5.h),
+                                                  child: _buildText(
+                                                    context,
+                                                    one:
+                                                        "$rank위", // 등수는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                    one1: schoolName,
+                                                    pCounter:
+                                                        formattedPoint, // 포인트는 실제 데이터에 따라 동적으로 설정해야 합니다.
+                                                    backgroundColor: rank == "1"
+                                                        ? appTheme.yellow600
+                                                        : const Color.fromARGB(
+                                                            255, 219, 219, 219),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 10.v),
+                                              ],
                                             );
-                                          }
-
-                                          if (snapshot.hasError) {
-                                            return Text(
-                                                'Error: ${snapshot.error}');
-                                          }
-
-                                          return const Text('No data');
-                                        },
-                                      ),
-                                    ]))),
-                        CustomOutlinedButton(
-                            width: 130.h,
-                            text: "Ranking",
-                            margin: EdgeInsets.only(left: 3.h),
-                            leftIcon: Container(
-                                margin: EdgeInsets.only(right: 11.h),
-                                child: CustomImageView(
-                                    imagePath: ImageConstant.imgTrophy,
-                                    height: 25.adaptSize,
-                                    width: 25.adaptSize)),
-                            alignment: Alignment.topLeft)
-                      ])),
-                  SizedBox(height: 5.v)
-                ]))));
-  }
-
-  /// Section Widget
-  Widget _buildFive(BuildContext context) {
-    return Container(
-        margin: EdgeInsets.only(left: 3.h),
-        padding: EdgeInsets.symmetric(horizontal: 13.h, vertical: 19.v),
-        decoration: AppDecoration.fillIndigoA
-            .copyWith(borderRadius: BorderRadiusStyle.roundedBorder25),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Garbage Collection Point",
-                  style: CustomTextStyles.titleMediumRoboto)),
-          SizedBox(height: 9.v),
-          CustomImageView(
-              imagePath: ImageConstant.imgFrame1566,
-              height: 32.v,
-              width: 286.h),
-          SizedBox(height: 5.v),
-          Padding(
-              padding: EdgeInsets.only(right: 3.h),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Text("0%", style: theme.textTheme.labelLarge),
-                const Spacer(),
-                Text("80%", style: theme.textTheme.labelLarge),
-                Padding(
-                    padding: EdgeInsets.only(left: 29.h),
-                    child: Text("100%", style: theme.textTheme.labelLarge))
-              ]))
-        ]));
+                                          }).toList(),
+                                        );
+                                      }
+                                      if (snapshot.hasError) {
+                                        return Text('Error: ${snapshot.error}');
+                                      }
+                                      return const Text('No data');
+                                    },
+                                  ),
+                                ]))),
+                    CustomOutlinedButton(
+                        width: 130.h,
+                        text: "Ranking",
+                        margin: EdgeInsets.only(left: 10.h),
+                        leftIcon: Container(
+                            margin: EdgeInsets.only(right: 11.h),
+                            child: CustomImageView(
+                                imagePath: ImageConstant.imgTrophy,
+                                height: 25.adaptSize,
+                                width: 25.adaptSize)),
+                        alignment: Alignment.topLeft)
+                  ])),
+              SizedBox(height: 5.v)
+            ])));
   }
 
   /// Common widget
