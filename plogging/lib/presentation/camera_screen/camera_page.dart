@@ -258,7 +258,10 @@ class _CameraExampleState extends State<CameraExample> {
     return MaterialApp(
       scaffoldMessengerKey: scaffoldMessengerKey,
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          shadowColor: Colors.transparent,
+          elevation: 0,
           backgroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back,
