@@ -44,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       width: double.maxFinite,
       child: Column(children: [
         buildTopSection(context, authService),
+        SizedBox(height: 50.v),
         createAccount(context, authService),
       ]),
     );
@@ -97,8 +98,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SizedBox(height: 7.v),
           buildPasswordInput(),
           SizedBox(height: 15.v),
-          // selectSchoolButton(context),
-          SizedBox(height: 40.v),
+          buildTextField("School", CustomTextStyles.titleSmallInterBlack900),
+          SizedBox(height: 7.v),
+          selectSchoolButton(context),
+          SizedBox(height: 7.v),
         ],
       ),
     );
@@ -149,19 +152,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget selectSchoolButton(BuildContext context) {
-    return DropdownButton<String?>(
-      value: _selectedSchoolName,
-      items: [null, '동아대학교', '기타대학교'].map((String? i) {
-        return DropdownMenuItem<String?>(
-          value: i,
-          child: Text(i == null ? '미선택' : i.toString()),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          _selectedSchoolName = newValue;
-        });
-      },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15.h),
+        border: Border.all(color: Colors.grey),
+        color: Colors.white,
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String?>(
+          value: _selectedSchoolName,
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.blue),
+          iconSize: 24,
+          elevation: 16,
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+          dropdownColor: Colors.white,
+          items: [null, '동아대학교', '경상대학교', '부경대학교', '부산대학교', '한국해양대학교']
+              .map((String? i) {
+            return DropdownMenuItem<String?>(
+              value: i,
+              child: Text(i == null ? '미선택' : i.toString()),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedSchoolName = newValue;
+            });
+          },
+        ),
+      ),
     );
   }
 
