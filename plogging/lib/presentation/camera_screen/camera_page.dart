@@ -59,6 +59,8 @@ class _CameraExampleState extends State<CameraExample> {
   final ImagePicker picker = ImagePicker();
   final FlutterVision vision = FlutterVision();
   Uint8List? detectedImage;
+  List<String> detectedTags = []; // Added a list to hold the detected tags
+  bool isLoading = false;
   // !이미지를 가져오는 함수
   Future getImage(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
@@ -81,6 +83,11 @@ class _CameraExampleState extends State<CameraExample> {
   Future<void> uploadImage() async {
     // 권한 요청
     await requestPermission();
+    // Set loading to true before the upload starts
+    setState(() {
+      isLoading = true;
+    });
+    showLoadingDialog();
     if (_image != null) {
       String fileName = path.basename(_image!.path);
       // 파일 확장자 추출
@@ -136,6 +143,10 @@ class _CameraExampleState extends State<CameraExample> {
       logger.e('이미지가 선택되지 않았습니다.');
       showSelectionErrorSnackbar();
     }
+    setState(() {
+      isLoading = false;
+    });
+    hideLoadingDialog();
   }
 
   Future<void> analyzeImage(String imageUrl) async {
@@ -165,6 +176,19 @@ class _CameraExampleState extends State<CameraExample> {
           // Provide other parameters as needed
         );
         logger.d(results);
+        // Clear existing tags before adding new ones
+        detectedTags.clear();
+        if (results.isNotEmpty) {
+          for (var result in results) {
+            // Use a null check or default value for potentially null fields
+            String detectedClass = result['tag'] ?? 'Unknown';
+            detectedTags.add(detectedClass);
+          }
+        } else {
+          detectedTags.add('Not Detected');
+        }
+        // Increment trashCount for each detected item
+        incrementTrashCount(detectedTags.length);
         setState(() {});
         //감지된 사진을 화면에 표시
       } else {
@@ -173,6 +197,25 @@ class _CameraExampleState extends State<CameraExample> {
     } catch (e) {
       logger.e('An error occurred while analyzing the image: $e');
     }
+  }
+
+  Future<void> incrementTrashCount(int itemCount) async {
+    final String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(userDoc);
+      if (!snapshot.exists) {
+        throw Exception("User does not exist!");
+      }
+      int newTrashCount = snapshot['trashCount'] + itemCount - 1;
+      transaction.update(userDoc, {'trashCount': newTrashCount});
+    }).then((result) {
+      logger.d("Trash count incremented by $itemCount");
+    }).catchError((error) {
+      logger.e("Failed to increment trash count: $error");
+    });
   }
 
   Widget _buildPhotoArea() {
@@ -277,11 +320,47 @@ class _CameraExampleState extends State<CameraExample> {
             ElevatedButton(
               onPressed: uploadImage, // 이미지 업로드 함수 호출
               child: const Text("이미지 업로드"),
+            ), // Add this Widget to display detected tags
+            Wrap(
+              children: detectedTags
+                  .map((tag) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(tag),
+                      ))
+                  .toList(),
             ),
           ],
         ),
       ),
     );
+  }
+
+// Function to show the loading dialog
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 24),
+              Text(
+                "업로드중~",
+                style:
+                    TextStyle(color: Colors.black), // Set text color to black
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Function to hide the loading dialog
+  void hideLoadingDialog() {
+    Navigator.of(context).pop(); // Close the dialog
   }
 
   Future<ui.Image> loadImage(Uint8List imgBytes) async {
