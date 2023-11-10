@@ -14,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:plogging/core/app_export.dart';
-import 'package:plogging/presentation/main_screen/main_screen.dart';
 import 'package:plogging/presentation/map_screen/map_screen.dart';
 import 'package:plogging/presentation/profile_screen/profile_screen.dart';
 
@@ -184,11 +183,11 @@ class _CameraExampleState extends State<CameraExample> {
             String detectedClass = result['tag'] ?? 'Unknown';
             detectedTags.add(detectedClass);
           }
+          incrementTrashCount(detectedTags.length);
         } else {
           detectedTags.add('Not Detected');
         }
         // Increment trashCount for each detected item
-        incrementTrashCount(detectedTags.length);
         setState(() {});
         //감지된 사진을 화면에 표시
       } else {
@@ -199,20 +198,49 @@ class _CameraExampleState extends State<CameraExample> {
     }
   }
 
+  String usersSchool = "";
   Future<void> incrementTrashCount(int itemCount) async {
     final String userId = FirebaseAuth.instance.currentUser!.uid;
     DocumentReference userDoc =
         FirebaseFirestore.instance.collection('users').doc(userId);
 
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot snapshot = await transaction.get(userDoc);
+        if (!snapshot.exists) {
+          throw Exception("User does not exist!");
+        }
+        usersSchool = snapshot['schoolName'];
+        int newTrashCount = snapshot['trashCount'] + itemCount;
+        int newPoint = snapshot['point'] + itemCount * 10;
+        transaction
+            .update(userDoc, {'trashCount': newTrashCount, 'point': newPoint});
+      });
+
+      // After successfully incrementing the trash count and points for the user,
+      // increment the school's point sum.
+      await incrementTrashCountSum(itemCount);
+      logger.d("Trash count incremented by $itemCount");
+    } catch (error) {
+      logger.e("Failed to increment trash count: $error");
+    }
+  }
+
+  Future<void> incrementTrashCountSum(int itemCount) async {
+    DocumentReference schoolDoc =
+        FirebaseFirestore.instance.collection('schools').doc(usersSchool);
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentSnapshot snapshot = await transaction.get(userDoc);
+      DocumentSnapshot snapshot = await transaction.get(schoolDoc);
       if (!snapshot.exists) {
         throw Exception("User does not exist!");
       }
-      int newTrashCount = snapshot['trashCount'] + itemCount - 1;
-      transaction.update(userDoc, {'trashCount': newTrashCount});
+      int oldSchoolPoint = snapshot['point'];
+      print(snapshot['point']);
+      int newSchoolPoint = snapshot['point'] + itemCount * 10;
+      print(newSchoolPoint);
+      transaction.update(schoolDoc, {'point': newSchoolPoint});
     }).then((result) {
-      logger.d("Trash count incremented by $itemCount");
+      logger.d("School point incremented");
     }).catchError((error) {
       logger.e("Failed to increment trash count: $error");
     });
