@@ -17,7 +17,6 @@ import 'package:plogging/presentation/profile_screen/profile_screen.dart';
 import 'package:plogging/presentation/camera_screen/camera_page.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:provider/provider.dart';
 
@@ -214,7 +213,7 @@ class _MapScreenState extends State<MapScreen> {
 
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
-  String _status = '?', _steps = '?';
+  String _status = '?', _steps = '0';
 
 
 
@@ -311,13 +310,6 @@ class _MapScreenState extends State<MapScreen> {
       _stepCountStream = Pedometer.stepCountStream;
       _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
-      // 매일 자정에 걸음 수 리셋
-      Timer(Duration(days: 1) -
-          DateTime.now().difference(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 24)), () {
-        setState(() {
-          _dailySteps = 0;
-        });
-      });
     }else{
       print('센서 권한이 거부되었습니다.');
     }
@@ -432,18 +424,20 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text(
-                    'Steps Taken',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                  Text(
-                    _steps,
-                    style: const TextStyle(fontSize: 60),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 1.0),  // 아래쪽에 20.0 픽셀의 공간을 추가합니다.
+                    child: Text(
+                      'WALK : $_steps',
+                      style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),  // 글자색을 검정색으로 설정하고, 글자 두께를 굵게 설정합니다.
+                    ),
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton(
+                        style: ButtonStyle(
+                          minimumSize: MaterialStateProperty.all<Size>(const Size(90, 50)),  // 버튼의 최소 크기를 설정합니다.
+                        ),
                         onPressed: () {
                           setState(() {
                             if (isTracking) {
