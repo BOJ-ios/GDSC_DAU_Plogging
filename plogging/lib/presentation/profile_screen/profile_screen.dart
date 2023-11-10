@@ -179,9 +179,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // 로그아웃 메서드를 호출
                       Provider.of<AuthService>(context, listen: false)
                           .signOut();
-                      // 로그인 페이지로 이동
-                      Navigator.of(context).pushReplacement(
+                      // 로그인 페이지로 이동하고 뒤로 가기 스택을 비웁니다.
+                      Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => LogInScreen()),
+                        ModalRoute.withName('/'),
                       );
                     },
                     child: const Icon(Icons.logout, color: Colors.black),
