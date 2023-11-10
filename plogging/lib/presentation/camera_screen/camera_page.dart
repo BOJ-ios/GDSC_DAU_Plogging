@@ -13,6 +13,10 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:plogging/core/app_export.dart';
+import 'package:plogging/presentation/main_screen/main_screen.dart';
+import 'package:plogging/presentation/map_screen/map_screen.dart';
+import 'package:plogging/presentation/profile_screen/profile_screen.dart';
 
 Location location = Location();
 var logger = Logger();
@@ -211,7 +215,58 @@ class _CameraExampleState extends State<CameraExample> {
     return MaterialApp(
       scaffoldMessengerKey: scaffoldMessengerKey,
       home: Scaffold(
-        appBar: AppBar(title: const Text("Camera Test")),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back,
+                color: Colors
+                    .black), // Change the color to black or any color that contrasts with white
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          toolbarHeight: 55.v,
+          title: Text("사진 업로드",
+              style: CustomTextStyles.titleMediumOnErrorContainer),
+          actions: [
+            CustomImageView(
+                imagePath: ImageConstant.imgHeart,
+                height: 24
+                    .adaptSize, // 'adaptSize' is a custom extension method to handle responsiveness
+                width: 24.adaptSize,
+                margin: EdgeInsets.symmetric(vertical: 2.v),
+                onTap: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) => const MapScreen()));
+                }),
+            const SizedBox(
+              width: 35,
+            ),
+            CustomImageView(
+                imagePath: ImageConstant.imgGroup952,
+                height: 16.adaptSize,
+                width: 16.adaptSize,
+                margin: EdgeInsets.symmetric(vertical: 3.v),
+                onTap: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) => const MainScreen()));
+                }),
+            const SizedBox(
+              width: 35,
+            ),
+            CustomImageView(
+                imagePath: ImageConstant.imgUser,
+                height: 29.adaptSize,
+                width: 29.adaptSize,
+                onTap: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                }),
+            const SizedBox(
+              width: 20,
+            ),
+          ],
+        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

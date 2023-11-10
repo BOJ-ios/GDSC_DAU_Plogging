@@ -3,9 +3,7 @@ import 'package:plogging/widgets/custom_elevated_button.dart';
 import 'package:plogging/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:plogging/auth_service.dart';
-import 'package:plogging/homepage.dart';
 import 'package:provider/provider.dart';
 
 // ignore_for_file: must_be_immutable

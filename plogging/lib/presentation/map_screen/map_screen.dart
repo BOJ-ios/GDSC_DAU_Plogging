@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:plogging/presentation/main_screen/main_screen.dart';
 import 'package:plogging/presentation/profile_screen/profile_screen.dart';
+import 'package:plogging/presentation/camera_screen/camera_page.dart';
 
 var logger = Logger();
 
@@ -169,7 +169,6 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Firestore로부터 마커를 로드하는 메서드
-  // Firestore로부터 마커를 로드하는 메서드
   void _loadMarkers() async {
     final String userId = FirebaseAuth.instance.currentUser!.uid;
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -228,7 +227,8 @@ class _MapScreenState extends State<MapScreen> {
               width: 24.adaptSize,
               margin: EdgeInsets.symmetric(vertical: 2.v),
               onTap: () {
-                Navigator.pushNamed(context, AppRoutes.cameraScreen);
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => const CameraExample()));
               }),
           const SizedBox(
             width: 35,

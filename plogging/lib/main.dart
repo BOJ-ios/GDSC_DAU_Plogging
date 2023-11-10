@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:plogging/theme/theme_helper.dart';
 import 'package:plogging/routes/app_routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:plogging/auth_service.dart';
 import 'package:plogging/firebase_options.dart';
-import 'package:plogging/homepage.dart';
-import 'package:plogging/loginpage.dart';
 import 'package:provider/provider.dart';
 // Import the firebase_app_check plugin
 import 'package:firebase_app_check/firebase_app_check.dart';
