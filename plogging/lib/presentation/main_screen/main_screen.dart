@@ -66,9 +66,9 @@ class _MainScreenState extends State<MainScreen> {
               width: 35,
             ),
             CustomImageView(
-                imagePath: ImageConstant.imgGroup952,
-                height: 16.adaptSize,
-                width: 16.adaptSize,
+                imagePath: ImageConstant.imgMapPin,
+                height: 24.adaptSize,
+                width: 24.adaptSize,
                 margin: EdgeInsets.symmetric(vertical: 3.v),
                 onTap: () {
                   onTapImgMapPin(context);
