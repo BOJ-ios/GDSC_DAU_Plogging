@@ -18,23 +18,23 @@ Future<void> printAppCheckToken() async {
     // Get the App Check token
     String? token = await FirebaseAppCheck.instance.getToken(true);
     // Print the token
-    logger.d('App Check token: $token');
+    print('App Check token: $token');
   } catch (e) {
-    logger.e('Error getting App Check token: $e');
+    print('Error getting App Check token: $e');
   }
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp();
   await FirebaseAppCheck.instance.activate(
     webProvider:
         ReCaptchaV3Provider('6LcEuwcpAAAAAEfrXMnjRurEG2lzx4lxOZmk75um'),
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.appAttest,
   );
+  // Call after FirebaseAppCheck is activated
   await printAppCheckToken();
-  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

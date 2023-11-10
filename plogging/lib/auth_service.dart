@@ -41,6 +41,8 @@ class AuthService extends ChangeNotifier {
         'email': email,
         'schoolName': schoolName,
         'name': name,
+        'trashCount': 0,
+        'point': 0
       });
       await user.sendEmailVerification();
       signOut();
