@@ -1,3 +1,4 @@
+import 'package:plogging/auth_service.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
@@ -14,6 +15,11 @@ import 'package:path/path.dart' as path;
 import 'package:plogging/presentation/main_screen/main_screen.dart';
 import 'package:plogging/presentation/profile_screen/profile_screen.dart';
 import 'package:plogging/presentation/camera_screen/camera_page.dart';
+import 'dart:async';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/material.dart';
+import 'package:pedometer/pedometer.dart';
+import 'package:provider/provider.dart';
 
 var logger = Logger();
 
@@ -29,12 +35,14 @@ class _MapScreenState extends State<MapScreen> {
   Position? currentPosition;
   bool isLocationPermissionGranted = false;
   Set<Marker> markers = {}; // 마커를 저장할 Set
+  int _dailySteps = 0;
 
   @override
   void initState() {
     super.initState();
     _determinePosition();
     _loadMarkers(); // Firestore로부터 마커를 로드하는 메서드 호출
+    initPlatformState();
   }
 
   Future<void> _determinePosition() async {
@@ -203,6 +211,124 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+
+  late Stream<StepCount> _stepCountStream;
+  late Stream<PedestrianStatus> _pedestrianStatusStream;
+  String _status = '?', _steps = '?';
+
+
+
+  bool _isTracking = false;
+
+  void startTracking() {
+    _isTracking = true;
+    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+    _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(onPedestrianStatusError);
+
+    // 걸음 수 보정
+    setState(() {
+      _dailySteps--;
+      _steps = _dailySteps.toString();
+    });
+
+    Future.delayed(Duration.zero, () {
+      _stepCountStream = Pedometer.stepCountStream;
+      _stepCountStream.listen(onStepCount).onError(onStepCountError);
+    });
+  }
+
+  void stopTracking() {
+    _isTracking = false;
+    _pedestrianStatusStream = Stream.empty();
+    _stepCountStream = Stream.empty();
+
+    User? user = Provider.of<AuthService>(context, listen: false).currentUser();
+    updatePoints(user?.uid ?? '', _dailySteps);
+  }
+
+  Future<void> updatePoints(String userId, int steps) async {
+    final usersRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    // 유저의 'schoolName' 필드 값을 가져옵니다.
+    final userSnapshot = await usersRef.get();
+    final schoolName = userSnapshot['schoolName'];
+
+    // 해당 학교의 'point' 값을 업데이트합니다.
+    final schoolsRef = FirebaseFirestore.instance.collection('schools').doc(schoolName);
+    await schoolsRef.update({
+      'point': FieldValue.increment(steps),
+    });
+
+    return usersRef.get().then((docSnapshot) async {
+      if (docSnapshot.exists) {
+        // 문서가 이미 존재하면 'point' 필드의 값을 업데이트합니다.
+        await usersRef.update({
+          'point': FieldValue.increment(steps),
+        });
+      } else {
+        // 문서가 존재하지 않으면 새로운 문서를 생성하고 'point' 필드에 걸음 수를 저장합니다.
+        await usersRef.set({
+          'point': steps,
+        });
+      }
+      print(steps.toString()+" 만큼 보냈습니다.");
+    });
+  }
+
+  void onStepCount(StepCount event) {
+    if (!_isTracking) return;
+    setState(() {
+      _dailySteps++;
+      _steps = _dailySteps.toString();
+    });
+  }
+
+    void onPedestrianStatusChanged(PedestrianStatus event) {
+    setState(() {
+      _status = event.status;
+    });
+  }
+
+  void onPedestrianStatusError(error) {
+    setState(() {
+      _status = 'Pedestrian Status not available';
+    });
+  }
+
+  void onStepCountError(error) {
+    setState(() {
+      _steps = '0(stop)';
+    });
+  }
+
+  void initPlatformState() async{
+    if (await Permission.activityRecognition.request().isGranted) {
+      _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+      _pedestrianStatusStream
+          .listen(onPedestrianStatusChanged)
+          .onError(onPedestrianStatusError);
+
+      _stepCountStream = Pedometer.stepCountStream;
+      _stepCountStream.listen(onStepCount).onError(onStepCountError);
+
+      // 매일 자정에 걸음 수 리셋
+      Timer(Duration(days: 1) -
+          DateTime.now().difference(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 24)), () {
+        setState(() {
+          _dailySteps = 0;
+        });
+      });
+    }else{
+      print('센서 권한이 거부되었습니다.');
+    }
+
+    if (!mounted) return;
+  }
+
+  bool isTracking = false;
+
+
+
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
@@ -298,10 +424,73 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
+          //여기부터
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 20.v),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    'Steps Taken',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                  Text(
+                    _steps,
+                    style: const TextStyle(fontSize: 60),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            if (isTracking) {
+                              stopTracking();
+                            } else {
+                              _dailySteps = 0;
+                              startTracking();
+                            }
+                            isTracking = !isTracking;  // 걸음 수 추적 상태를 반전시킵니다.
+                          });
+                        },
+                        child: Text(isTracking ? 'Stop' : 'Start'),  // 걸음 수 추적 상태에 따라 버튼의 텍스트를 변경합니다.
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          //여기까지
+
+        // Align(
+        //     alignment: Alignment.bottomCenter,
+        //     child: Padding(
+        //       padding: EdgeInsets.only(bottom: 20.v),
+        //       child: ElevatedButton(
+        //         onPressed: () {
+        //           if (isTracking) {
+        //             stopTracking();
+        //           } else {
+        //             startTracking();
+        //           }
+        //           setState(() {
+        //             isTracking = !isTracking;  // 걸음 수 추적 상태를 반전시킵니다.
+        //           });
+        //         },
+        //         child: Text(isTracking ? 'Stop' : 'Start'),  // 걸음 수 추적 상태에 따라 버튼의 텍스트를 변경합니다.
+        //       ),
+        //     ),
+        //   ),
+
+
         ],
       ),
     );
   }
+
 
   @override
   void didChangeDependencies() {
