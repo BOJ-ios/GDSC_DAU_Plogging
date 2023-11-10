@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class CustomOutlinedButton extends BaseButton {
   CustomOutlinedButton({
-    Key? key,
-    this.decoration,
+    super.key,
+    BoxDecoration? decoration,
     this.leftIcon,
     this.rightIcon,
     this.label,
@@ -18,7 +18,14 @@ class CustomOutlinedButton extends BaseButton {
     double? width,
     EdgeInsets? margin,
     required String text,
-  }) : super(
+    Color? backgroundColor,
+  })  : decoration = decoration ??
+            BoxDecoration(
+              color: backgroundColor ?? Colors.transparent,
+              border: null,
+              borderRadius: BorderRadius.circular(5),
+            ),
+        super(
           text: text,
           onPressed: onPressed,
           buttonStyle: buttonStyle,
@@ -30,7 +37,7 @@ class CustomOutlinedButton extends BaseButton {
           margin: margin,
         );
 
-  final BoxDecoration? decoration;
+  BoxDecoration decoration;
 
   final Widget? leftIcon;
 
@@ -49,8 +56,8 @@ class CustomOutlinedButton extends BaseButton {
   }
 
   Widget get buildOutlinedButtonWidget => Container(
-        height: this.height ?? 37.v,
-        width: this.width ?? double.maxFinite,
+        height: height ?? 37.v,
+        width: width ?? double.maxFinite,
         margin: margin,
         decoration: decoration,
         child: OutlinedButton(

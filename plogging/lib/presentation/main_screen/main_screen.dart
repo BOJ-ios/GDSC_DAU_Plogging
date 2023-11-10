@@ -246,16 +246,19 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                 ]))),
                     CustomOutlinedButton(
-                        width: 130.h,
-                        text: "Ranking",
-                        margin: EdgeInsets.only(left: 10.h),
-                        leftIcon: Container(
-                            margin: EdgeInsets.only(right: 11.h),
-                            child: CustomImageView(
-                                imagePath: ImageConstant.imgTrophy,
-                                height: 25.adaptSize,
-                                width: 25.adaptSize)),
-                        alignment: Alignment.topLeft)
+                      text: "Ranking",
+                      backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+                      leftIcon: Padding(
+                        padding: EdgeInsets.only(right: 11.h),
+                        child: CustomImageView(
+                          imagePath: ImageConstant.imgTrophy,
+                          height: 25.adaptSize,
+                          width: 25.adaptSize,
+                        ),
+                      ),
+                      width: 130.h,
+                      margin: EdgeInsets.only(left: 10.h),
+                    )
                   ])),
               SizedBox(height: 5.v)
             ],
