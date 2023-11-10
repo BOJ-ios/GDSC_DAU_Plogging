@@ -1,3 +1,5 @@
+import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart';
+import 'package:location/location.dart' hide LocationAccuracy;
 import 'package:plogging/auth_service.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:flutter/material.dart';
@@ -36,12 +38,29 @@ class _MapScreenState extends State<MapScreen> {
   Set<Marker> markers = {}; // 마커를 저장할 Set
   int _dailySteps = 0;
 
+  Location location = Location();
+  bool _isTracking = false;
+  List<LatLng> routeCoords = [];
+
   @override
   void initState() {
     super.initState();
     _determinePosition();
     _loadMarkers(); // Firestore로부터 마커를 로드하는 메서드 호출
     initPlatformState();
+
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      if (isTracking) {
+        double? latitude = currentLocation.latitude;
+        double? longitude = currentLocation.longitude;
+
+        if (latitude != null && longitude != null) {
+          setState(() {
+            routeCoords.add(LatLng(latitude, longitude));
+          });
+        }
+      }
+    });
   }
 
   Future<void> _determinePosition() async {
@@ -217,8 +236,6 @@ class _MapScreenState extends State<MapScreen> {
 
 
 
-  bool _isTracking = false;
-
   void startTracking() {
     _isTracking = true;
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
@@ -319,6 +336,9 @@ class _MapScreenState extends State<MapScreen> {
 
   bool isTracking = false;
 
+  void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
 
   @override
@@ -389,6 +409,14 @@ class _MapScreenState extends State<MapScreen> {
             myLocationEnabled: true,
             myLocationButtonEnabled: true, //기본값 : true
             markers: markers,
+            polylines: {
+            Polyline(
+              polylineId: const PolylineId('route1'),
+              visible: true,
+              points: routeCoords,
+              color: Color(0xFF0000FF),
+            ),
+          },
           ),
           // 마커 개수 표시
           Align(
@@ -457,29 +485,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
-          //여기까지
-
-        // Align(
-        //     alignment: Alignment.bottomCenter,
-        //     child: Padding(
-        //       padding: EdgeInsets.only(bottom: 20.v),
-        //       child: ElevatedButton(
-        //         onPressed: () {
-        //           if (isTracking) {
-        //             stopTracking();
-        //           } else {
-        //             startTracking();
-        //           }
-        //           setState(() {
-        //             isTracking = !isTracking;  // 걸음 수 추적 상태를 반전시킵니다.
-        //           });
-        //         },
-        //         child: Text(isTracking ? 'Stop' : 'Start'),  // 걸음 수 추적 상태에 따라 버튼의 텍스트를 변경합니다.
-        //       ),
-        //     ),
-        //   ),
-
-
         ],
       ),
     );
