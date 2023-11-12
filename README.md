@@ -1,7 +1,8 @@
 # BalanceTeam
 
-**GDSC DAU HeadingTon(2023-11-06~10)**
+**GDSC DAU Headington(2023-11-06~10)**
 **Team: Balance**
+**Collaborators:[EunByu1](https://github.com/EunByu1), [seonae-j](https://github.com/seonae-j), [w1shope](https://github.com/w1shope), [wjdheesp44](https://github.com/wjdheesp44)**
 
 # UP
 
