@@ -29,7 +29,7 @@
 
 **건강도 지키고 환경도 지키는 환경 보호 활동 중 하나입니다!**
 
-- 이삭 등을 줍는다는 뜻의 **_스웨덴어 plocka upp_**과 달리기를 뜻하는 **_영어 jogging_**의 합성어 => "쓰레기를 주우며 조깅하기"
+- 이삭 등을 줍는다는 뜻의 **스웨덴어 plocka upp**과 달리기를 뜻하는 **영어 jogging**의 합성어 => "쓰레기를 주우며 조깅하기"
 
 ## 사용장면
 
@@ -39,10 +39,15 @@
 ## 사용기술
 
 - [Figma](https://www.figma.com/)
+  - Frontend 개발을 편하게 하기 위해서 사용
 - [Flutter](https://flutter.dev/)
+  - Android ios 사용자에게 모두 제공가능
 - [Google Map](https://developers.google.com/maps)
+  - 사용자의 이동경로, 쓰레기를 주운 위치 마킹 가능
 - [Firebase](https://firebase.google.com/)
+  - 사진과 사용자정보 등을 저장
 - [YOLOv8](https://github.com/ultralytics/ultralytics)
+  - 쓰레기 사진을 인식하여 점수 반영
 
 ## 구현과정
 
