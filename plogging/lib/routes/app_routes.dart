@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:plogging/presentation/camera_screen/camera_page.dart';
-import 'package:plogging/presentation/get_started_screen/get_started_screen.dart';
-import 'package:plogging/presentation/log_in_screen/log_in_screen.dart';
-import 'package:plogging/presentation/register_screen/register_screen.dart';
-import 'package:plogging/presentation/get_started_one_screen/get_started_one_screen.dart';
-import 'package:plogging/presentation/main_screen/main_screen.dart';
-import 'package:plogging/presentation/map_screen/map_screen.dart';
-import 'package:plogging/presentation/profile_screen/profile_screen.dart';
-import 'package:plogging/presentation/app_navigation_screen/app_navigation_screen.dart';
+import 'package:plogging/camera_page.dart';
+import 'package:plogging/get_started_screen.dart';
+import 'package:plogging/log_in_screen.dart';
+import 'package:plogging/register_screen.dart';
+import 'package:plogging/get_started_one_screen.dart';
+import 'package:plogging/main_screen.dart';
+import 'package:plogging/map_screen.dart';
+import 'package:plogging/profile_screen.dart';
+import 'package:plogging/app_navigation_screen.dart';
 
 class AppRoutes {
   static const String getStartedScreen = '/get_started_screen';

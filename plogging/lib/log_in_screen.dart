@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plogging/core/app_export.dart';
 import 'package:plogging/auth_service.dart';
-import 'package:plogging/presentation/main_screen/main_screen.dart';
+import 'package:plogging/main_screen.dart';
 import 'package:plogging/widgets/custom_elevated_button.dart';
 import 'package:plogging/widgets/custom_text_form_field.dart';
 import 'package:provider/provider.dart';

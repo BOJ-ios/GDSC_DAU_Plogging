@@ -14,8 +14,8 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:plogging/core/app_export.dart';
-import 'package:plogging/presentation/map_screen/map_screen.dart';
-import 'package:plogging/presentation/profile_screen/profile_screen.dart';
+import 'package:plogging/map_screen.dart';
+import 'package:plogging/profile_screen.dart';
 
 Location location = Location();
 var logger = Logger();
@@ -234,7 +234,6 @@ class _CameraExampleState extends State<CameraExample> {
       if (!snapshot.exists) {
         throw Exception("User does not exist!");
       }
-      int oldSchoolPoint = snapshot['point'];
       print(snapshot['point']);
       int newSchoolPoint = snapshot['point'] + itemCount * 10;
       print(newSchoolPoint);

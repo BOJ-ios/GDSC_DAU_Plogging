@@ -1,4 +1,3 @@
-export 'package:plogging/core/constants/constants.dart';
 export 'package:plogging/core/utils/image_constant.dart';
 export 'package:plogging/core/utils/size_utils.dart';
 export 'package:plogging/routes/app_routes.dart';

@@ -14,9 +14,9 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:plogging/presentation/main_screen/main_screen.dart';
-import 'package:plogging/presentation/profile_screen/profile_screen.dart';
-import 'package:plogging/presentation/camera_screen/camera_page.dart';
+import 'package:plogging/main_screen.dart';
+import 'package:plogging/profile_screen.dart';
+import 'package:plogging/camera_page.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pedometer/pedometer.dart';
@@ -229,17 +229,16 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '0';
 
-
-
   void startTracking() {
     _isTracking = true;
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-    _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(onPedestrianStatusError);
+    _pedestrianStatusStream
+        .listen(onPedestrianStatusChanged)
+        .onError(onPedestrianStatusError);
 
     // 걸음 수 보정
     setState(() {
@@ -270,7 +269,8 @@ class _MapScreenState extends State<MapScreen> {
     final schoolName = userSnapshot['schoolName'];
 
     // 해당 학교의 'point' 값을 업데이트합니다.
-    final schoolsRef = FirebaseFirestore.instance.collection('schools').doc(schoolName);
+    final schoolsRef =
+        FirebaseFirestore.instance.collection('schools').doc(schoolName);
     await schoolsRef.update({
       'point': FieldValue.increment(steps),
     });
@@ -287,7 +287,7 @@ class _MapScreenState extends State<MapScreen> {
           'point': steps,
         });
       }
-      print(steps.toString()+" 만큼 보냈습니다.");
+      print(steps.toString() + " 만큼 보냈습니다.");
     });
   }
 
@@ -299,7 +299,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-    void onPedestrianStatusChanged(PedestrianStatus event) {
+  void onPedestrianStatusChanged(PedestrianStatus event) {
     setState(() {
       _status = event.status;
     });
@@ -317,7 +317,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  void initPlatformState() async{
+  void initPlatformState() async {
     if (await Permission.activityRecognition.request().isGranted) {
       _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
       _pedestrianStatusStream
@@ -326,8 +326,7 @@ class _MapScreenState extends State<MapScreen> {
 
       _stepCountStream = Pedometer.stepCountStream;
       _stepCountStream.listen(onStepCount).onError(onStepCountError);
-
-    }else{
+    } else {
       print('센서 권한이 거부되었습니다.');
     }
 
@@ -339,7 +338,6 @@ class _MapScreenState extends State<MapScreen> {
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -410,13 +408,13 @@ class _MapScreenState extends State<MapScreen> {
             myLocationButtonEnabled: true, //기본값 : true
             markers: markers,
             polylines: {
-            Polyline(
-              polylineId: const PolylineId('route1'),
-              visible: true,
-              points: routeCoords,
-              color: Color(0xFF0000FF),
-            ),
-          },
+              Polyline(
+                polylineId: const PolylineId('route1'),
+                visible: true,
+                points: routeCoords,
+                color: Color(0xFF0000FF),
+              ),
+            },
           ),
           // 마커 개수 표시
           Align(
@@ -453,10 +451,15 @@ class _MapScreenState extends State<MapScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 1.0),  // 아래쪽에 20.0 픽셀의 공간을 추가합니다.
+                    padding: const EdgeInsets.only(
+                        bottom: 1.0), // 아래쪽에 20.0 픽셀의 공간을 추가합니다.
                     child: Text(
                       'WALK : $_steps',
-                      style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),  // 글자색을 검정색으로 설정하고, 글자 두께를 굵게 설정합니다.
+                      style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight
+                              .bold), // 글자색을 검정색으로 설정하고, 글자 두께를 굵게 설정합니다.
                     ),
                   ),
                   Row(
@@ -464,7 +467,8 @@ class _MapScreenState extends State<MapScreen> {
                     children: <Widget>[
                       ElevatedButton(
                         style: ButtonStyle(
-                          minimumSize: MaterialStateProperty.all<Size>(const Size(90, 50)),  // 버튼의 최소 크기를 설정합니다.
+                          minimumSize: MaterialStateProperty.all<Size>(
+                              const Size(90, 50)), // 버튼의 최소 크기를 설정합니다.
                         ),
                         onPressed: () {
                           setState(() {
@@ -474,10 +478,12 @@ class _MapScreenState extends State<MapScreen> {
                               _dailySteps = 0;
                               startTracking();
                             }
-                            isTracking = !isTracking;  // 걸음 수 추적 상태를 반전시킵니다.
+                            isTracking = !isTracking; // 걸음 수 추적 상태를 반전시킵니다.
                           });
                         },
-                        child: Text(isTracking ? 'Stop' : 'Start'),  // 걸음 수 추적 상태에 따라 버튼의 텍스트를 변경합니다.
+                        child: Text(isTracking
+                            ? 'Stop'
+                            : 'Start'), // 걸음 수 추적 상태에 따라 버튼의 텍스트를 변경합니다.
                       ),
                     ],
                   ),
@@ -489,7 +495,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
 
   @override
   void didChangeDependencies() {
