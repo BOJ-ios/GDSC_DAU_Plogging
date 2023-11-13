@@ -56,9 +56,10 @@ class _CameraExampleState extends State<CameraExample> {
 
   XFile? _image;
   final ImagePicker picker = ImagePicker();
-  final FlutterVision vision = FlutterVision();
+  final FlutterVision vision_epo50 = FlutterVision();
+  final FlutterVision vision_epo100 = FlutterVision();
   Uint8List? detectedImage;
-  List<String> detectedTags = []; // Added a list to hold the detected tags
+  List<String> detectedTags = [];
   bool isLoading = false;
   // !이미지를 가져오는 함수
   Future getImage(ImageSource imageSource) async {
@@ -159,34 +160,58 @@ class _CameraExampleState extends State<CameraExample> {
         if (image == null) throw 'Unable to decode image';
 
         // Load the YOLO model before running inference.
-        await vision.loadYoloModel(
-            modelPath: 'assets/best_float32.tflite',
-            labels: 'assets/coco_label.txt',
+        await vision_epo50.loadYoloModel(
+            modelPath: 'assets/epo50_float32.tflite',
+            labels: 'assets/trash_label.txt',
             modelVersion: 'yolov8',
             quantization: false,
             numThreads: 2,
             useGpu: true);
-
+        await vision_epo100.loadYoloModel(
+            modelPath: 'assets/epo100_float32.tflite',
+            labels: 'assets/trash_label.txt',
+            modelVersion: 'yolov8',
+            quantization: false,
+            numThreads: 2,
+            useGpu: true);
         // Run inference using the YOLO model with actual image dimensions
-        List<Map<String, dynamic>> results = await vision.yoloOnImage(
+        List<Map<String, dynamic>> resultsEpo50 =
+            await vision_epo50.yoloOnImage(
           bytesList: imageBytes,
           imageHeight: image.height,
           imageWidth: image.width,
           // Provide other parameters as needed
         );
-        logger.d(results);
+        List<Map<String, dynamic>> resultsEpo100 =
+            await vision_epo100.yoloOnImage(
+          bytesList: imageBytes,
+          imageHeight: image.height,
+          imageWidth: image.width,
+        );
+        logger.d("Epoch : 50");
+        logger.d(resultsEpo50);
+        logger.d("Epoch : 100");
+        logger.d(resultsEpo100);
         // Clear existing tags before adding new ones
         detectedTags.clear();
-        if (results.isNotEmpty) {
-          for (var result in results) {
-            // Use a null check or default value for potentially null fields
-            String detectedClass = result['tag'] ?? 'Unknown';
-            detectedTags.add(detectedClass);
+        if (resultsEpo50.isEmpty && resultsEpo100.isEmpty) {
+          detectedTags.add('Not Detected');
+        } else {
+          if (resultsEpo50.length > resultsEpo100.length) {
+            for (var result in resultsEpo50) {
+              // Use a null check or default value for potentially null fields
+              String detectedClass = result['tag'] ?? 'Unknown';
+              detectedTags.add(detectedClass);
+            }
+          } else {
+            for (var result in resultsEpo100) {
+              String detectedClass = result['tag'] ?? 'Unknown';
+              detectedTags.add(detectedClass);
+            }
           }
           incrementTrashCount(detectedTags.length);
-        } else {
-          detectedTags.add('Not Detected');
         }
+
         // Increment trashCount for each detected item
         setState(() {});
         //감지된 사진을 화면에 표시
