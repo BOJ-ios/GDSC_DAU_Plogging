@@ -3,7 +3,7 @@
 **GDSC DAU Headington(2023-11-06~10)**
 **Team: Balance**
 **Collaborators:[EunByu1](https://github.com/EunByu1), [seonae-j](https://github.com/seonae-j), [w1shope](https://github.com/w1shope), [wjdheesp44](https://github.com/wjdheesp44)**
-
+![2](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/8d39af24-76e6-4228-9077-ef9a01021e2d)
 # UP
 
 ![20231112_215439](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/e7a226ae-c831-4086-a79b-390ef0cc3100)
