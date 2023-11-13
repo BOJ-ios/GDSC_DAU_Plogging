@@ -78,12 +78,30 @@
 ### YOLOv8
 
 [사용한 데이터셋](https://universe.roboflow.com/projectverba/yolo-waste-detection)
-반복 :15회
+epoch :100회
+base : yolov8s.pt
 
 #### 인식 가능한 labels
 
 Aerosols, Aluminum can, Aluminum caps, Cardboard, Cellulose, Ceramic, Combined plastic, Container for household chemicals, Disposable tableware, Electronics, Foil, Furniture, Glass bottle, Iron utensils, Liquid, Metal shavings, Milk bottle, Organic, Paper bag, Paper cups, Paper shavings, Paper, Papier mache, Plastic bag, Plastic bottle, Plastic can, Plastic canister, Plastic caps, Plastic cup, Plastic shaker, Plastic shavings, Plastic toys, Postal packaging, Printing industry, Scrap metal, Stretch film, Tetra pack, Textile, Tin, Unknown plastic, Wood, Zip plastic bag
 ![Train에 사용된 사진](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/4859e5c8-5ce1-4d82-937f-7845b0f03bc5)
+
+#### **학습과정**
+
+- epoch : 50
+  ![epoch50](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/490d2fad-b326-4a12-9d09-63cb4fd1d7c3)
+- epoch : 100
+  ![epoch100](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/18075566-d604-4a96-af32-11532ad8c2a9)
+- train/box_loss : 0.60062 -> 0.51776
+- train/cls_loss : 0.31526 -> 0.28401
+- train/dfl_loss : 1.0677 -> 1.0847
+- val/box_loss : 1.2177 -> 1.2549
+- val/cls_loss : 1.048 -> 1.1558
+- val/dfl_loss : 1.4304 -> 1.7433
+- validate의 경우 오히려 loss가 커졌다?
+
+1. 과적합(overfitting) 가능성
+2. 훈련 데이터와 검증 데이터 간의 분포가 달라 데이터 편향가능성
 
 #### 앱 내에서 테스트한 사진1
 
