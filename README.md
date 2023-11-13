@@ -57,7 +57,7 @@
 
 ## 구현화면
 
-### Figma
+### 초기 Figma 디자인
 
 <img width="616" alt="피그마 이미지" src="https://github.com/BOJ-ios/BalanceTeam/assets/44316764/b3cbcd71-d5fb-4059-867c-9bc75dc29676">
 
