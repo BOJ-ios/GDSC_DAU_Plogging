@@ -86,18 +86,27 @@ base : yolov8s.pt
 Aerosols, Aluminum can, Aluminum caps, Cardboard, Cellulose, Ceramic, Combined plastic, Container for household chemicals, Disposable tableware, Electronics, Foil, Furniture, Glass bottle, Iron utensils, Liquid, Metal shavings, Milk bottle, Organic, Paper bag, Paper cups, Paper shavings, Paper, Papier mache, Plastic bag, Plastic bottle, Plastic can, Plastic canister, Plastic caps, Plastic cup, Plastic shaker, Plastic shavings, Plastic toys, Postal packaging, Printing industry, Scrap metal, Stretch film, Tetra pack, Textile, Tin, Unknown plastic, Wood, Zip plastic bag
 ![Train에 사용된 사진](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/4859e5c8-5ce1-4d82-937f-7845b0f03bc5)
 
-#### **학습과정**
+#### **학습과정(epoch100)**
 
+- train 시작, epoch 1
+  ![trainStart](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/2737f618-974f-4699-a7cb-7e82a7bf9e61)
+- train 종료, epoch 100
+  ![mAP](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/1bf1280e-7a6e-483a-b306-bd5808d38ff0)
+
+#### **학습결과**
+
+- mAP
+  ![20231113_180038](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/c3f4be72-4dc7-44ee-a55a-adddefc8213a)
 - epoch : 50
   ![epoch50](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/490d2fad-b326-4a12-9d09-63cb4fd1d7c3)
 - epoch : 100
   ![epoch100](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/18075566-d604-4a96-af32-11532ad8c2a9)
-- train/box_loss : 0.60062 -> 0.51776
-- train/cls_loss : 0.31526 -> 0.28401
-- train/dfl_loss : 1.0677 -> 1.0847
-- val/box_loss : 1.2177 -> 1.2549
-- val/cls_loss : 1.048 -> 1.1558
-- val/dfl_loss : 1.4304 -> 1.7433
+- **train/box_loss** : 0.60062 -> 0.51776
+- **train/cls_loss** : 0.31526 -> 0.28401
+- **train/dfl_loss** : 1.0677 -> 1.0847
+- **val/box_loss** : 1.2177 -> 1.2549
+- **val/cls_loss** : 1.048 -> 1.1558
+- **val/dfl_loss** : 1.4304 -> 1.7433
 - validate의 경우 오히려 loss가 커졌다?
 
 1. 과적합(overfitting) 가능성
