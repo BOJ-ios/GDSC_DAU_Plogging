@@ -23,6 +23,7 @@ import 'package:pedometer/pedometer.dart';
 import 'package:provider/provider.dart';
 
 var logger = Logger();
+//Todo : background 걸음 수 측정
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -33,6 +34,8 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
+  late Stream<StepCount> _stepCountStream;
+  late Stream<PedestrianStatus> _pedestrianStatusStream;
   Position? currentPosition;
   bool isLocationPermissionGranted = false;
   Set<Marker> markers = {}; // 마커를 저장할 Set
@@ -42,18 +45,32 @@ class _MapScreenState extends State<MapScreen> {
   bool _isTracking = false;
   List<LatLng> routeCoords = [];
 
+  StreamSubscription<LocationData>? locationSubscription;
+  StreamSubscription<StepCount>? stepCountSubscription;
+  StreamSubscription<PedestrianStatus>? pedestrianStatusSubscription;
+
+  //!initState()
   @override
   void initState() {
     super.initState();
     _determinePosition();
-    _loadMarkers(); // Firestore로부터 마커를 로드하는 메서드 호출
-    initPlatformState();
+    _initPlatformState();
+    _loadMarkers();
+    subscribeToLocationChanges();
+  }
 
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      if (isTracking) {
+  void subscribeToLocationChanges() {
+    locationSubscription =
+        location.onLocationChanged.listen((LocationData currentLocation) {
+      // Check if the widget is still mounted before calling setState.
+      if (!mounted) return;
+
+      // Only update the route if tracking is active.
+      if (_isTracking) {
         double? latitude = currentLocation.latitude;
         double? longitude = currentLocation.longitude;
 
+        // Safely call setState to update the UI.
         if (latitude != null && longitude != null) {
           setState(() {
             routeCoords.add(LatLng(latitude, longitude));
@@ -63,6 +80,17 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  //!dispose()
+  @override
+  void dispose() {
+    mapController.dispose();
+    locationSubscription?.cancel();
+    stepCountSubscription?.cancel();
+    pedestrianStatusSubscription?.cancel();
+    super.dispose();
+  }
+
+  //!권한 확인 Location
   Future<void> _determinePosition() async {
     Position position;
     bool serviceEnabled;
@@ -107,6 +135,32 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  //!권한 확인 ActivityRecognition
+  void _initPlatformState() async {
+    bool isActivityRecognitionGranted =
+        await Permission.activityRecognition.request().isGranted;
+    if (isActivityRecognitionGranted) {
+      pedestrianStatusSubscription
+          ?.cancel(); // Cancel the existing subscription if any.
+      pedestrianStatusSubscription = Pedometer.pedestrianStatusStream.listen(
+        onPedestrianStatusChanged,
+        onError: onPedestrianStatusError,
+      );
+
+      stepCountSubscription
+          ?.cancel(); // Cancel the existing subscription if any.
+      stepCountSubscription = Pedometer.stepCountStream.listen(
+        onStepCount,
+        onError: onStepCountError,
+      );
+    } else {
+      logger.d('Activity recognition permission denied.');
+    }
+
+    if (!mounted) return;
+  }
+
+  //! 사이즈 줄인 이미지 로드
   Future<BitmapDescriptor> getResizedMarkerImageFromUrl(
       String url, int targetWidth, int targetHeight) async {
     try {
@@ -143,7 +197,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-// 캐시에 이미지가 있는지 확인하고, 있으면 바로 불러오고 없으면 다운로드 후 캐시에 저장하는 메서드
+  // !캐시에 이미지가 있는지 확인하고, 있으면 바로 불러오고 없으면 다운로드 후 캐시에 저장하는 메서드
   Future<BitmapDescriptor> getCachedImage(
       String imageUrl, int width, int height) async {
     final fileName = path.basename(imageUrl); // 파일 이름 추출
@@ -166,7 +220,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // URL에서 이미지를 다운로드하고 크기를 조정하는 메서드
+  //! URL에서 이미지를 다운로드하고 크기를 조정하는 메서드
   Future<Uint8List> downloadImageAndResize(
       String imageUrl, int targetWidth, int targetHeight) async {
     try {
@@ -188,13 +242,12 @@ class _MapScreenState extends State<MapScreen> {
             'Failed to load marker image, status code: ${response.statusCode}');
       }
     } catch (e) {
-      // 에러를 캐치하여 추가적인 디버깅 정보를 제공합니다.
       logger.e(e);
       rethrow; // 에러를 다시 발생시킵니다.
     }
   }
 
-  // Firestore로부터 마커를 로드하는 메서드
+  //! Firestore로부터 마커를 로드하는 메서드
   void _loadMarkers() async {
     final String userId = FirebaseAuth.instance.currentUser!.uid;
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -229,8 +282,6 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  late Stream<StepCount> _stepCountStream;
-  late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?', _steps = '0';
 
   void startTracking() {
@@ -254,8 +305,8 @@ class _MapScreenState extends State<MapScreen> {
 
   void stopTracking() {
     _isTracking = false;
-    _pedestrianStatusStream = Stream.empty();
-    _stepCountStream = Stream.empty();
+    _pedestrianStatusStream = const Stream.empty();
+    _stepCountStream = const Stream.empty();
 
     User? user = Provider.of<AuthService>(context, listen: false).currentUser();
     updatePoints(user?.uid ?? '', _dailySteps);
@@ -287,7 +338,7 @@ class _MapScreenState extends State<MapScreen> {
           'point': steps,
         });
       }
-      print(steps.toString() + " 만큼 보냈습니다.");
+      print("$steps 만큼 보냈습니다.");
     });
   }
 
@@ -315,22 +366,6 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       _steps = '0(stop)';
     });
-  }
-
-  void initPlatformState() async {
-    if (await Permission.activityRecognition.request().isGranted) {
-      _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-      _pedestrianStatusStream
-          .listen(onPedestrianStatusChanged)
-          .onError(onPedestrianStatusError);
-
-      _stepCountStream = Pedometer.stepCountStream;
-      _stepCountStream.listen(onStepCount).onError(onStepCountError);
-    } else {
-      print('센서 권한이 거부되었습니다.');
-    }
-
-    if (!mounted) return;
   }
 
   bool isTracking = false;
@@ -412,7 +447,7 @@ class _MapScreenState extends State<MapScreen> {
                 polylineId: const PolylineId('route1'),
                 visible: true,
                 points: routeCoords,
-                color: Color(0xFF0000FF),
+                color: const Color(0xFF0000FF),
               ),
             },
           ),

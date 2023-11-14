@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plogging/auth_service.dart';
 import 'package:provider/provider.dart';
 
+//Todo: 뒤로가기 2번 누르면 앱 꺼지도록
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
