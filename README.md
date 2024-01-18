@@ -47,7 +47,7 @@
   - 사용자의 이동경로, 쓰레기를 주운 위치 마킹 가능
 - [Firebase](https://firebase.google.com/)
   - 사진과 사용자정보 등을 저장
-- [YOLOv8](https://github.com/ultralytics/ultralytics)
+- [YOLOv8 -> TensorflowLite](https://github.com/ultralytics/ultralytics)
   - 쓰레기 사진을 인식하여 점수 반영
 
 ## 구현과정
