@@ -75,7 +75,7 @@
 ![DB1](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/3204aa8b-bf72-4f99-9d18-dc036b0bcc98)
 ![DB2](https://github.com/BOJ-ios/BalanceTeam/assets/44316764/bfc48c60-c6b4-48cd-a377-8084015041f3)
 
-### YOLOv8
+### YOLOv8 -> TensorflowLite
 
 [사용한 데이터셋](https://universe.roboflow.com/projectverba/yolo-waste-detection)
 epoch :100회
